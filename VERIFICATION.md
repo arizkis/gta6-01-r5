@@ -111,3 +111,24 @@ Two subsequent `MAKEFUN_OUTPUT_DIR=out node main.ts` runs each produced 29 files
 `vendor/makefun-game.ts` is byte-identical to starter commit `f4a0377`; `game/vendor/three.min.js` is byte-identical to the starting HEAD, `546d9b4`. Their SHA-256 values remain the ones recorded above. The existing authored capture line in `main.ts` and the factual scope header in `game/src/main.js` remain intact. README changes are confined to its staging/capture section; its badges, referral code, systems, jobs and controls match the starting commit. The deterministic gameplay suite passed before recapture.
 
 The final browser run used ordinary free play at `/?seed=17`, with `staged === false`. Real keyboard and menu input entered Juno's Solace, accelerated to a displayed 21 KM/H, tuned SUNSPUR FM, restarted the day, walked 5.1 world units, opened the six-job board and paused/resumed. Its initial load made 24 local requests. After that load, the entire interaction run made zero requests; external requests, console errors, failed requests, HTTP error responses and warnings were also zero. This pass performed no submission or recording completion.
+
+## Coldfin rear detail / 2026-11-18
+
+This pass replaces the cover image from the preceding recapture. The van now has bordered split rear doors, hinges, handles, glowing red lamps, a bumper, mudflaps and a `CFN 017` plate. Canvas paint carries the existing Sunspur Coldfin name, coastal waves and frost marks on the rear and sides. The existing roof cooler has a rear grille and side ribs. Vehicle dimensions, collision data and driving rules retain their previous values.
+
+Only the cover camera moved: three units sideways, three higher and nine farther back. The seed-17 cover still settles at frame 90, with the 138 KM/H vehicle card, three police units, helicopter searchlight, sunset, Tavi portrait dialogue and every HUD panel inside the viewport.
+
+Playwright MCP captured the cover directly from `?shot=cover&seed=17` at 1280 × 960, device scale 1 and JPEG quality 86. The saved file was opened and inspected: the doors, livery, hardware, lamps, cooler grille and plate are visible. It contains a single browser render without image editing or recompression. The other three saved images were opened too; none presents the freezer van prominently, including the causeway's pink Solace chase, so those files remain byte-identical to `c7f791f`.
+
+| Current screenshot | Bytes | This pass |
+| --- | ---: | --- |
+| 01-bailout-cover.jpg | 204318 | Re-captured and viewed |
+| 02-market-mission.jpg | 163229 | Viewed; retained |
+| 03-garage-upgrades.jpg | 183342 | Viewed; retained |
+| 04-causeway-chase.jpg | 189312 | Viewed; retained |
+
+On-disk inspection confirms exactly these four JPEGs, each 1280 × 960 and below 262144 bytes. The route mappings are unchanged.
+
+Two `MAKEFUN_OUTPUT_DIR=out node main.ts` runs produced matching file lists and byte buffers for all 29 files, each totalling 2,730,517 bytes. The dossier is 1,154,519 bytes; its SHA-256 is `0ceed9e392c26be4168b68e17147c8bcfbcc4fdc6938842c8c8bed2640d1d42d`. Both protected vendor hashes still match the earlier record, with the packaging library compared directly against `f4a0377` and Three.js against `c7f791f`.
+
+The gameplay suite and whitespace check pass. A fresh ordinary free-play run entered the Solace with E, accelerated with W and selected SUNSPUR FM with F. It reported `staged === false`, zero console errors, failed requests, HTTP errors or external requests. Loading required 24 local resources; subsequent play and pause made zero requests. The cover's first browser load emitted four GPU ReadPixels performance warnings; the final free-play console was clear. No submission or recording action was taken.

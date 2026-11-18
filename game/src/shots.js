@@ -92,7 +92,7 @@ export function stageShot(game) {
     neon('SUNSPUR MOTEL', 2380, 44, 1810, PALETTE.orange, 65);
     trails(van);
     game.dialogue.say(crowd.contacts[0], ['Meet me at Tin Cup Pier. The shade is free; the favor pays.']);
-    view(2468, 22, 1566, 2433, 24, 1680);
+    view(2471, 25, 1557, 2433, 24, 1680);
   }
   if (shot === 'market') {
     city.setTimeOfDay('midday'); state.clockMinutes = 745;
