@@ -18,8 +18,8 @@ export function createFigure(color = '#f4a872', skin = '#c99878') {
   const arms = [-3, 3].map(x => box(mesh, x, 6.5, 0, 1.2, 5.5, 1.4, color));
   box(mesh, 0, 12.7, 0, 4, 1.2, 3.7, '#4e4547');
   box(mesh, 0, 10.8, 1.8, 2.8, 0.7, 0.6, '#2e4b55');
-  bakeMeshes(mesh, [...legs, ...arms]);
-  return { mesh, legs, arms };
+  bakeMeshes(mesh, [torso, ...legs, ...arms]);
+  return { mesh, legs, arms, torso };
 }
 
 export function animateFigure(figure, phase, moving) {
@@ -46,21 +46,26 @@ export function createPedestrians(scene, city, seed = 17) {
     const figure = createFigure(contact.color);
     figure.mesh.position.set(contact.x, 1.5, contact.z);
     scene.add(figure.mesh);
-    label(scene, `${contact.name.toUpperCase()} / ${contact.faction}`, contact.x, 28, contact.z, 100, contact.color);
+    label(figure.mesh, `${contact.name.toUpperCase()} / ${contact.faction}`, 0, 26, 0, 100, contact.color);
     const ring = new THREE.Mesh(new THREE.RingGeometry(6, 7.5, 24), new THREE.MeshBasicMaterial({ color: contact.color, side: THREE.DoubleSide }));
     ring.rotation.x = -Math.PI / 2;
-    ring.position.set(contact.x, 1.55, contact.z);
-    scene.add(ring);
+    ring.position.set(0, 0.05, 0);
+    figure.mesh.add(ring);
     return { ...contact, ...figure, position: figure.mesh.position };
   });
   function update(dt) {
     for (const person of people) {
+      person.state.panic = Math.max(0, person.state.panic - dt);
+      if (person.state.panic > 0) {
+        person.state.mode = Number(person.id.slice(4)) % 7 === 0 ? 'crouch' : 'flee';
+        person.mesh.scale.y = person.state.mode === 'crouch' ? 0.55 : 1;
+      } else { person.state.mode = 'stroll'; person.state.target = null; person.mesh.scale.y = 1; }
       const target = person.state.target ?? person.route[person.index];
       const dx = target.x - person.position.x, dz = target.z - person.position.z;
       const length = Math.hypot(dx, dz);
       let moving = false;
-      if (length > 3 && person.state.mode !== 'idle') {
-        const nx = dx / length, nz = dz / length, step = person.state.speed * dt;
+      if (length > 3 && !['idle', 'crouch'].includes(person.state.mode)) {
+        const nx = dx / length, nz = dz / length, step = person.state.speed * (person.state.panic ? 3.8 : 1) * dt;
         const oldX = person.position.x, oldZ = person.position.z;
         city.move(person.position, nx * step, nz * step, 3);
         moving = Math.hypot(person.position.x - oldX, person.position.z - oldZ) > step * 0.1;
@@ -75,5 +80,14 @@ export function createPedestrians(scene, city, seed = 17) {
       animateFigure(person, person.phase, moving);
     }
   }
-  return { people, contacts, update };
+  function scare(point, radius = 95) {
+    people.forEach(person => {
+      const dx = person.position.x - point.x, dz = person.position.z - point.z, length = Math.hypot(dx, dz);
+      if (length < radius) {
+        person.state.panic = 5;
+        person.state.target = { x: person.position.x + dx / (length || 1) * 100, z: person.position.z + dz / (length || 1) * 100 };
+      }
+    });
+  }
+  return { people, contacts, update, scare };
 }

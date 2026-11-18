@@ -10,7 +10,7 @@ export function createPlayer(scene, city) {
   const player = {
     name: 'Juno Reed', ...figure, position: figure.mesh.position, heading: Math.PI,
     vehicle: null, walkingSpeed: 0, phase: 0, radius: 3.2,
-    state: { cash: 140, health: 100, armour: 0, weapon: 0, tank: 100, respect: { FIXER: 0, MECHANIC: 0, FENCE: 0 } },
+    state: { cash: 140, health: 100, armour: 0, weapon: 0, tank: 100, shirt: '#ef946f', upgrades: {}, spikeCharges: 0, bestTime: null, respect: { FIXER: 0, MECHANIC: 0, FENCE: 0 } },
     interaction: null,
   };
   function reset() {
@@ -24,6 +24,8 @@ export function createPlayer(scene, city) {
     player.state.cash = 140; player.state.health = 100; player.state.armour = 0;
     player.state.weapon = 0; player.state.tank = 100;
     player.state.respect = { FIXER: 0, MECHANIC: 0, FENCE: 0 };
+    player.state.upgrades = {}; player.state.spikeCharges = 0; player.state.bestTime = null;
+    player.carrying = false;
   }
   function update(dt, keys, cameraYaw) {
     if (player.vehicle) {
@@ -36,6 +38,10 @@ export function createPlayer(scene, city) {
     const sideways = Number(keys.has('KeyD') || keys.has('ArrowRight')) - Number(keys.has('KeyA') || keys.has('ArrowLeft'));
     const moving = forward !== 0 || sideways !== 0;
     player.walkingSpeed = moving ? keys.has('ShiftLeft') || keys.has('ShiftRight') ? SPEEDS.sprint : SPEEDS.walk : 0;
+    if (player.carrying) player.walkingSpeed *= 0.62;
+    const swimming = city.swimAllowed && player.position.x > 2710;
+    if (swimming) player.walkingSpeed *= 0.7;
+    player.position.y = swimming ? -4 : 1.5;
     if (moving) {
       const direction = new THREE.Vector2(Math.sin(cameraYaw) * forward - Math.cos(cameraYaw) * sideways, Math.cos(cameraYaw) * forward + Math.sin(cameraYaw) * sideways).normalize();
       city.move(player.position, direction.x * player.walkingSpeed * dt, direction.y * player.walkingSpeed * dt, player.radius);
@@ -71,6 +77,7 @@ export function createPlayer(scene, city) {
     if (action.type === 'contact') { onContact?.(action.target); return true; }
     if (action.type === 'enter') {
       player.vehicle = action.target;
+      player.lastVehicle = action.target;
       action.target.occupied = true;
       action.target.traffic = false;
       action.target.speed = 0;

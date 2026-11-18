@@ -47,13 +47,20 @@ export function createVehicle(scene, options = {}) {
     label(mesh, 'COLD / HANDLE WITH CARE', 0, 24, -8, 38);
   }
   bakeMeshes(mesh);
+  const door = new THREE.Group();
+  if (model.freezer) {
+    door.position.set(-w / 2, 8, l * 0.25);
+    box(door, -0.5, 0, -4, 1.2, 10, 9, color);
+    box(door, -0.7, 3, -4, 1.4, 4, 7, '#365965');
+    door.visible = false; mesh.add(door);
+  }
   const vehicle = {
     id: options.id ?? `car-${options.x ?? 0}-${options.z ?? 0}`,
     name: model.name, model, mesh, wheels: [],
     position: mesh.position, heading: options.heading ?? 0, speed: 0, condition: 100,
     occupied: false, traffic: options.traffic ?? false, freezer: !!model.freezer,
     radius: Math.hypot(w / 2, l / 2) * 0.76,
-    collisionCooldown: 0, upgrades: {},
+    collisionCooldown: 0, upgrades: {}, door,
   };
   mesh.position.set(options.x ?? 0, 1.4, options.z ?? 0);
   mesh.rotation.y = vehicle.heading;

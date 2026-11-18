@@ -57,7 +57,7 @@ export function createMinimap(canvas, city) {
       ctx.font = 'bold 14px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillStyle = '#173e49'; ctx.fillText(text, x, z + 1);
     }
     marker(PLACES.safehouse, 'H', '#c9d4b3');
-    contacts.forEach(contact => marker(contact, contact.name[0], contact.color, true));
+    contacts.forEach(contact => marker(contact.position ?? contact, contact.name[0], contact.color, true));
     if (navigation.target) marker(navigation.target, '◆', '#ffe4a5', true);
     ctx.save(); ctx.translate(center, center); ctx.rotate(Math.PI - player.heading);
     ctx.fillStyle = '#fff0cf'; ctx.strokeStyle = '#173e49'; ctx.lineWidth = 3;

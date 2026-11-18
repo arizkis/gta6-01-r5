@@ -9,7 +9,7 @@ export const DISTRICTS = [
   { name: 'CITRUS COMMONS', color: '#a6bd85', test: () => true },
 ];
 export const PALETTE = { cream: '#ffe5b2', pink: '#ef8ca6', orange: '#f7a568', teal: '#358e91', road: '#526c73', pavement: '#ddcba5', sea: '#3ca9b3', grass: '#83a98b', ink: '#173e49' };
-export const SPEEDS = { walk: 7, sprint: 11, carMax: 150, reverse: 38, acceleration: 42, braking: 80, traffic: 48 };
+export const SPEEDS = { walk: 17, sprint: 28, carMax: 150, reverse: 38, acceleration: 42, braking: 80, traffic: 48 };
 export const SAVE_KEY = 'sunspur.cooler-caper.v1';
 export const SPAWN = { x: 472, z: 648, heading: 0 };
 export const CONTACTS = [
@@ -21,8 +21,14 @@ export const PLACES = {
   park: { x: 460, z: 490, name: 'CITRUS GREEN' },
   festival: { x: 1780, z: 950, name: 'LANTERN FEST' },
   impound: { x: 910, z: 1810, name: 'SUNSPUR IMPOUND' },
-  workshop: { x: 1770, z: 1380, name: "TAVI'S WORKSHOP" },
-  safehouse: { x: 430, z: 615, name: "JUNO'S SAFEHOUSE" },
+  workshop: { x: 1780, z: 1470, name: "TAVI'S WORKSHOP" },
+  safehouse: { x: 430, z: 631, name: "JUNO'S SAFEHOUSE" },
   market: { x: 1370, z: 570, name: 'MARIGOLD MARKET' },
   pier: { x: 2150, z: 2300, name: 'TIN CUP PIER' },
 };
+export const SERVICES = [
+  { id: 'food', x: 1300, z: 551, name: 'SUNBASKET / FOOD & ARMOUR' },
+  { id: 'clothes', x: 1430, z: 551, name: 'THREAD & TIDE' },
+  { id: 'garage', ...PLACES.workshop },
+  { id: 'home', ...PLACES.safehouse },
+];

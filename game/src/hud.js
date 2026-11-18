@@ -18,7 +18,7 @@ export function createHUD(city) {
     element('district').textContent = district;
     element('map-district').textContent = district;
     element('mission-name').textContent = mission.active ? mission.name : 'NO ACTIVE JOB';
-    element('mission-objective').textContent = mission.active ? mission.objective : 'Three contacts. One very long summer.';
+    element('mission-objective').textContent = mission.active ? `${mission.objective}${mission.timer !== null && mission.timer !== undefined ? ` · ${Math.ceil(mission.timer)}s` : ''}` : 'Three contacts. One very long summer.';
     element('mission-next').textContent = `NEXT / ${mission.active ? mission.next : 'FIND A CONTACT OR OPEN THE JOB BOARD'}`;
     const key = `${mission.active}-${mission.stage}-${mission.stageCount}`;
     if (key !== pipsKey) {
@@ -34,6 +34,8 @@ export function createHUD(city) {
     element('wanted-stars').textContent = Array.from({ length: 5 }, (_, i) => i < level ? '★' : '☆').join(' ');
     element('wanted-stars').setAttribute('aria-label', `Wanted level ${level} of 5`);
     element('dispatch').textContent = `DISPATCH / ${wanted.dispatch || 'ALL QUIET'}`;
+    element('heat').value = wanted.heat ?? 0;
+    element('heat-status').textContent = `${wanted.witness > 0 ? '◉ WITNESS · ' : ''}${wanted.los ?? 'LOST'}${wanted.arrest > 0 ? ` · BUST ${Math.round(wanted.arrest / 4 * 100)}%` : ''}`;
     element('cash').textContent = money(p.cash);
     const minutes = Math.floor(state.clockMinutes) % 1440;
     element('clock').textContent = `${String(Math.floor(minutes / 60)).padStart(2, '0')}:${String(minutes % 60).padStart(2, '0')}`;
@@ -52,6 +54,7 @@ export function createHUD(city) {
     element('cooler-temp').textContent = `${Number(cooler.temperature ?? 0).toFixed(1)}°C`;
     element('cooler-integrity').textContent = `${Math.round(cooler.integrity ?? 100)}%`;
     element('cooler-payout').textContent = money(cooler.payout ?? 0);
+    element('cargo-status').textContent = `${player.carrying ? 'CARRIED BY JUNO' : 'SECURED IN VEHICLE'}${cooler.integrity >= 99.5 ? ' · COLD BONUS' : ' · PAY SCALES WITH CARE'}`;
     document.querySelectorAll('[data-weapon]').forEach(node => node.classList.toggle('selected', Number(node.dataset.weapon) === p.weapon));
     for (const name of ['health', 'armour', 'tank']) element(name).value = p[name];
     for (const name of ['health', 'armour']) element(`${name}-value`).textContent = Math.round(p[name]);
@@ -59,17 +62,21 @@ export function createHUD(city) {
     const prompt = player.interaction;
     element('interaction').hidden = !prompt || !!state.dialogue.active;
     element('interaction').textContent = prompt?.label ?? '';
-    element('vehicle-panel').hidden = !player.vehicle;
-    if (player.vehicle) {
-      element('vehicle-name').textContent = player.vehicle.name;
-      element('speed').textContent = Math.round(Math.abs(player.vehicle.speed) * 1.8);
-      element('condition').textContent = `${Math.round(player.vehicle.condition)}%`;
+    const vehicle = player.vehicle ?? player.lastVehicle;
+    element('vehicle-panel').hidden = !vehicle;
+    if (vehicle) {
+      element('vehicle-name').textContent = vehicle.name;
+      element('vehicle-context').textContent = player.vehicle ? 'BEHIND THE WHEEL' : `${Math.round(position.distanceTo(vehicle.position))}m TO YOUR RIDE`;
+      element('speed').textContent = player.vehicle ? Math.round(Math.abs(vehicle.speed) * 1.8) : '0';
+      element('condition').textContent = `${Math.round(vehicle.condition)}%`;
+      element('spike-charges').textContent = `SPIKES / ${p.upgrades.spikes ? `${p.spikeCharges}/3 · X TO DROP` : 'RACK NOT FITTED'}`;
     }
     element('radio-station').textContent = `RADIO / ${state.radio.station || 'OFF'}`;
     element('dialogue').hidden = !state.dialogue.active;
     element('speaker').textContent = state.dialogue.speaker ?? '';
     element('dialogue-line').textContent = state.dialogue.line ?? '';
     element('portrait').textContent = state.dialogue.initials ?? 'JR';
+    element('portrait').style.backgroundColor = state.dialogue.color ?? '#ed9bae';
     element('notice').hidden = performance.now() > noticeUntil;
     map.draw(player, contacts, navigation, wanted);
   }

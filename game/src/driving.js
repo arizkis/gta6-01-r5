@@ -8,20 +8,21 @@ export function driveVehicle(car, dt, keys, city) {
   const brake = keys.has('KeyS') || keys.has('ArrowDown');
   const steer = Number(keys.has('KeyA') || keys.has('ArrowLeft')) - Number(keys.has('KeyD') || keys.has('ArrowRight'));
   car.collisionCooldown = Math.max(0, car.collisionCooldown - dt);
-  if (accelerate) car.speed += (car.speed < 0 ? SPEEDS.braking : SPEEDS.acceleration) * dt;
+  if (accelerate) car.speed += (car.speed < 0 ? SPEEDS.braking : SPEEDS.acceleration / (car.upgrades.armour ? 1.2 : 1)) * dt;
   else if (brake) car.speed -= (car.speed > 0 ? SPEEDS.braking : SPEEDS.acceleration * 0.6) * dt;
   else car.speed *= Math.exp(-dt * 0.65);
   if (keys.has('Space')) car.speed *= Math.exp(-dt * 3.8);
   const maxSpeed = (car.model.maxSpeed ?? SPEEDS.carMax) * (0.6 + car.condition * 0.004);
   car.speed = THREE.MathUtils.clamp(car.speed, -SPEEDS.reverse, maxSpeed);
   if (Math.abs(car.speed) < 0.25 && !accelerate && !brake) car.speed = 0;
-  const steeringGrip = Math.min(1, Math.abs(car.speed) / 25) / (1 + Math.abs(car.speed) / 180);
+  const steeringGrip = Math.min(1, Math.abs(car.speed) / 25) / (1 + Math.abs(car.speed) / 180) * (car.condition < 25 ? 0.48 : 1);
   const beforeHeading = car.heading;
   car.heading += steer * steeringGrip * 1.7 * Math.sign(car.speed) * dt;
   const hit = city.move(car.position, Math.sin(car.heading) * car.speed * dt, Math.cos(car.heading) * car.speed * dt, car.radius, car);
   if (hit) {
     if (Math.abs(car.speed) > 18 && car.collisionCooldown === 0) {
-      car.condition = Math.max(0, car.condition - Math.min(16, Math.abs(car.speed) * 0.13));
+      car.impact = Math.abs(car.speed);
+      car.condition = Math.max(0, car.condition - Math.min(16, car.impact * 0.13) * (car.upgrades.armour ? 0.45 : 1));
       car.collisionCooldown = 0.7;
     }
     car.speed *= 0.25;

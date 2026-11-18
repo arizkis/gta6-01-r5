@@ -77,6 +77,7 @@ export function buildCity(scene, seed = 17) {
   root.name = 'Sunspur Bay';
   scene.add(root);
   const blockers = [], shadeZones = [], lamps = [];
+  let swimming = false;
   const addBlocker = (x, z, w, d, kind = 'building', owner = null) => {
     const value = { x, z, halfX: w / 2, halfZ: d / 2, kind, owner };
     blockers.push(value);
@@ -89,7 +90,8 @@ export function buildCity(scene, seed = 17) {
     return mainland || pier;
   };
   function blocked(x, z, radius = 3, ignore = null) {
-    if (!withinLand(x, z, radius)) return true;
+    const swim = radius < 5 && swimming && x > 2680 && x < 2790 && Math.abs(z - 1840) < 70;
+    if (!withinLand(x, z, radius) && !swim) return true;
     return blockers.some(b => b !== ignore && (ignore === null || b.owner !== ignore) && Math.abs(x - b.x) < b.halfX + radius && Math.abs(z - b.z) < b.halfZ + radius);
   }
   function move(position, dx, dz, radius = 3, ignore = null) {
@@ -250,6 +252,22 @@ export function buildCity(scene, seed = 17) {
   fence(2120, 2370, 2, 320); fence(2180, 2370, 2, 320);
   fence(2150, 2532, 60, 2);
   label(root, 'TIN CUP PIER', 2150, 36, 2205, 108);
+  // A short raised coastal road with water and bridge piers beneath its edges.
+  box(root, 1970, 0.8, 2040, 530, 0.2, 200, PALETTE.sea);
+  box(root, 1970, 1.2, 2040, 530, 0.4, 112, PALETTE.road);
+  for (const z of [1980, 2100]) {
+    box(root, 1970, 4, z, 530, 2, 3, '#edcba0');
+    for (let x = 1710; x < 2235; x += 45) box(root, x, 6, z, 2, 9, 2, '#eac297');
+  }
+  label(root, 'COASTAL CAUSEWAY', 1980, 30, 2110, 115);
+  const buoy = new THREE.Mesh(new THREE.ConeGeometry(7, 14, 8), material(PALETTE.orange));
+  buoy.position.set(2750, 6, 1840); root.add(buoy);
+  label(root, 'SWIMMER BUOY', 2750, 25, 1840, 72);
+  for (const tap of [{ x: 2150, z: 2190 }, { x: 1410, z: 640 }]) {
+    box(root, tap.x, 4, tap.z, 4, 8, 4, '#65c5d3');
+    box(root, tap.x + 2, 8, tap.z, 6, 2, 2, '#dce9ce');
+    label(root, 'WATER / REFILL', tap.x, 19, tap.z, 40, '#a2e7e5');
+  }
   bench(2150, 2460);
   for (const x of STREETS.x) for (let z = 390; z < 2000; z += 220) {
     tree(x - 68, z);
@@ -285,6 +303,7 @@ export function buildCity(scene, seed = 17) {
     city.timeOfDay = TIME_PRESETS[name] ? name : 'golden';
   }
   const city = {
+    get swimAllowed() { return swimming; }, set swimAllowed(value) { swimming = value; },
     root, blockers, shadeZones, lamps, places: PLACES, districtAt, blocked, move, withinLand, addBlocker, setTimeOfDay,
     isShaded: (x, z) => shadeZones.some(s => s.radius ? Math.hypot(x - s.x, z - s.z) < s.radius : Math.abs(x - s.x) < s.halfX && Math.abs(z - s.z) < s.halfZ),
   };

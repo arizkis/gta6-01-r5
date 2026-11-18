@@ -1,3 +1,4 @@
 out/
 .verification/
 node_modules/
+.playwright-mcp/

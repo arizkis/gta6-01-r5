@@ -149,3 +149,37 @@ meter::-webkit-meter-optimum-value { background: var(--teal); border-radius: 0; 
   .controls-strip { gap: 9px; font-size: 7px; }
   .controls-strip span { white-space: nowrap; }
 }
+/* Gameplay instruments retain clear space for the street scene at 1280 × 720. */
+.heat-row { display: flex; align-items: center; gap: 8px; margin: -3px 0 8px; }
+.heat-row meter { width: 60px; height: 4px; }
+.heat-row span { font: 8px monospace; color: var(--pink); }
+.wanted { min-height: 175px; }
+.police { top: 210px; }
+.unit-row { font-size: 9px; padding: 4px 0; }
+.cooler { top: 362px; padding: 10px 14px; }
+.cooler h2 { margin-bottom: 4px; }
+.cooler dl div { padding: 3px 0; }
+.cooler dd { font-size: 16px; }
+#cargo-status { font: 8px monospace; color: var(--teal); margin: 6px 0 0; }
+.vehicle { padding: 10px 14px; bottom: 59px; }
+.vehicle h2 { margin: 3px 0 5px; font-size: 17px; }
+.vehicle-numbers strong { font-size: 29px; }
+#radio-station { margin-top: 7px; padding-top: 7px; font-size: 9px; }
+#spike-charges { font: 8px monospace; color: var(--teal); margin: 6px 0 0; }
+.dialogue { width: min(535px, 43vw); bottom: 61px; padding: 10px 13px; }
+#portrait { min-width: 45px; height: 49px; font-size: 20px; }
+#dialogue-line { font-size: 13px; margin-top: 4px; }
+.service-menu { position: fixed; inset: 0; z-index: 8; pointer-events: none; }
+.service-sheet { position: absolute; top: 180px; right: 285px; width: min(440px, 45vw); max-height: calc(100vh - 242px); overflow-y: auto; padding: 20px; background: var(--cream); color: var(--ink); border-top: 6px solid var(--orange); box-shadow: 8px 8px 0 #143e4966; pointer-events: auto; }
+.service-sheet header { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 12px; }
+.service-sheet h2 { font-size: 24px; letter-spacing: -1px; margin: 4px 0; }
+.service-sheet .eyebrow { font-size: 8px; }
+.service-sheet header button { font-size: 9px; padding: 9px; white-space: nowrap; }
+.service-option { display: block; width: 100%; text-align: left; margin: 6px 0; padding: 10px 13px; letter-spacing: 0; }
+.service-option strong { font-size: 12px; display: block; }
+.service-option span { font-size: 10px; font-weight: normal; display: block; margin-top: 4px; }
+.progression { border-top: 2px solid #b59e7f; margin-top: 12px; padding-top: 12px; white-space: pre-line; font: bold 11px/1.9 monospace; }
+.board-complete { grid-column: 1 / -1; padding: 15px; background: var(--teal); font-weight: bold; }
+#busted { position: fixed; inset: 0; z-index: 20; background: #163d4988; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+#busted strong { font-size: 100px; color: var(--pink); letter-spacing: 12px; }
+#busted p { padding: 14px 25px; background: var(--ink); }

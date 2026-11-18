@@ -6,11 +6,17 @@
 
 Juno Reed is a getaway driver with $140, three contacts and a suspiciously important cooler. Sunspur Bay is an original low-poly coastal city in pink, orange, teal and cream. Explore five districts on foot or behind the wheel, with a third-person chase camera, moving traffic, strolling neighbors and a waterfront pier. All game art is geometry or canvas lettering generated locally. The only vendored runtime dependency is Three.js r160.
 
-The full game design adds police patrol tactics and five wanted levels, cooler temperature and cargo integrity affecting payout, a six-job contact chain, Tavi's Workshop repairs and upgrades, selectable weapons and local radio. These gameplay systems are scheduled for the second implementation turn. This foundation already provides the city, driving, collisions, traffic, pedestrians, contact labels and prompts, menus, job definitions and all HUD state interfaces. Job execution and dialogue are not active yet. There are no saves, weapon effects or radio audio in this foundation.
+The six favors now run as a sequential job chain. Patrols pursue witnessed crimes, try PITs and rams, form roadblocks at three stars and box in cars with helicopter support at four. Break their sight behind buildings; shade also hides you from the helicopter. Heat drains, followed by stars. Staying within arrest range for four seconds brings a fine and a return to Juno’s apartment. The HUD reports the nearest three units, their tactics, sight status and heat; the map draws their vision cones and search area.
+
+Coolers warm in sunlight, cool in shade and after sunset, and lose integrity in hard impacts. Integrity scales the payout; pristine cargo earns the full amount and a COLD BONUS acknowledgement. Juno automatically carries the visible cooler when leaving a vehicle and walks more slowly. Re-entering secures it again. Vapour follows both the box and the van. The final job carries a glowing lantern instead.
+
+Tavi’s Workshop sells armour plating ($120), cooler insulation ($90) and a three-charge spike rack ($80); repairs cost $0.60 per missing condition point, rounded up. Plating reduces condition damage by 55% and increases acceleration weight by 20%. Insulation cuts sunlight warming to a third. A pursuing unit crossing a strip slows for six seconds; replacement strips cost $25. Cars smoke below 40% condition and steer poorly below 25%. Collisions also hurt Juno, with armour taking damage first. Market stalls sell food, work vests and five shirt colors. Fists scatter people, the wrench damages nearby cars, and the festival water pistol has a refillable tank. Speeding cars, close patrols and water send neighbors running or crouching.
+
+While driving, cycle three WebAudio stations with different original note patterns, waveforms and tempos, plus a silent off/static dial position. Browser interaction enables audio. Skids, tyre smoke and collision sparks accompany driving. Save at the apartment; purchases and completed favors also save. The localStorage key is `sunspur.cooler-caper.v1`. Saves include cash, job progress, faction respect, clothing, upgrades, spike charges and checkpoint records. START restores the saved day; staging routes neither read nor write saves.
 
 ## Around the bay
 
-Citrus Commons is Juno's home and the location of Citrus Green. Old Salt Quarter holds Sunspur Impound and the cream Sunspur Coldfin freezer van. Marigold Market has food and clothes stalls. Sunspur Strand meets the sand and sea. Tideworks holds Tavi's Workshop. Tavi Moss waits near Lantern Fest, Niko Vale near the market and Paz Sol near Tin Cup Pier. The impound has a driveable gate gap; the pier is the only place the player can leave the mainland boundary.
+Citrus Commons holds Juno’s apartment and Citrus Green. Find Sunspur Impound and the Coldfin freezer van in Old Salt Quarter, food and clothes in Marigold Market, and Tavi’s Workshop in Tideworks. Sunspur Strand leads to the sand, a coastal causeway and Tin Cup Pier. Tavi starts at Lantern Fest and moves to the pier for the first hand-in. Niko waits at the market, and Paz works by the pier. The impound gate admits a careful driver; the buoy favor permits a short swim beyond the beach.
 
 ## Six favors
 
@@ -23,7 +29,7 @@ Citrus Commons is Juno's home and the location of Citrus Green. Old Salt Quarter
 | 5 | Five District Flyer | Niko Vale / FIXER | $420 | Clear checkpoints in all five districts before time expires. |
 | 6 | The Lantern Mile | Paz Sol / FENCE | $500 | Deliver night lanterns from Lantern Fest to Tin Cup Pier. |
 
-The board shows all six definitions. The first job is unlocked; later jobs unlock in order when the gameplay director records completion. In this foundation, TAKE THE JOB selects a contact without starting execution.
+Take the first favor from the board, then press E near the named contact to hear the opening and advance the objective. Later favors unlock in order. E also accepts an available favor directly from its contact. Gold world markers and the plotted map route lead to each objective. Fruit gets five minutes, and the five-district course gets eight. Deliveries require stopping within 25 meters. Favor completion pays cash and raises the contact’s faction meter; the board acknowledges all six when finished. The buoy errand opens a short swimming corridor from the Strand to the orange marker.
 
 ## Run locally
 
@@ -42,25 +48,27 @@ Open <http://localhost:8080> in desktop Chrome. The server serves `game/index.ht
 | Enter or START | Start the day |
 | WASD / arrow keys | Walk or accelerate, steer, brake and reverse while driving |
 | Shift | Sprint on foot |
-| E | Enter a nearby slow vehicle, exit at a free spot, or interact with a named contact |
+| E | Enter or exit a slow car, talk, advance dialogue, or open a nearby shop/apartment |
 | Space | Vehicle handbrake |
 | Escape / P | Pause or resume; return from the job board |
-| 1 / 2 / 3 | Select fists / wrench / water pistol; effects arrive with gameplay |
-| F | Radio control, reserved for the gameplay turn |
-| X | Spike strip, reserved for the gameplay turn |
+| 1 / 2 / 3 or Q | Select or cycle fists, wrench and water pistol |
+| R or click the world | Use the equipped item on foot |
+| F | Cycle SUNSPUR FM, MARLIN TALK, TIDEWAVE and off/static |
+| X | Drop a fitted spike strip while driving |
+| B | Open the job board during play |
 | Mouse click | Activate menu buttons |
 
 Exit requires a nearly stopped car and clear space beside or behind it. Walking uses camera-relative directions. Steering weakens at high speed. Collisions stop or slide cars and reduce their condition; condition limits top speed.
 
 ## Modules and extension points
 
-Each feature is a plain ES module under `game/src/`. `config.js` owns dimensions and tuning; `random.js` owns seeded placement; `city.js` owns geometry, blockers, shade queries, district lookup and `setTimeOfDay('golden' | 'midday' | 'dusk' | 'night')`. `vehicles.js`, `traffic.js` and `pedestrians.js` expose live vehicle and pedestrian records. `player.js` and `driving.js` own movement and the camera. `minimap.js` draws world, route, target, search, police and vision-cone data. `hud.js` renders state. `mission-director.js` holds ordered job definitions and unlock state. `main.js` owns input, menus and the fixed-step loop.
+Each feature is a plain ES module under `game/src/`. `config.js` defines dimensions and tuning; `random.js` supplies repeatable placement. `city.js` builds geometry, blockers and shade and exposes district and time-of-day queries. `vehicles.js`, `traffic.js` and `pedestrians.js` keep live actor records. `player.js` and `driving.js` handle movement and the camera. `minimap.js` and `hud.js` draw the instruments. `mission-director.js` executes the six jobs and tracks unlocks; `main.js` connects systems, menus, input and the simulation loop.
 
-`window.sunspur` exposes the shared state, city queries, contacts, vehicles, scene, camera, director and event bus. `registerSystem({ update(dt, state), reset(state) })` attaches gameplay modules. The event bus emits `contact`, `jobrequested` and `key` events. The HUD consumes `wanted`, `cooler`, `navigation`, `dialogue`, `radio` and `player.state`; a hidden cooler panel becomes visible when `cooler.active` is true. Pedestrians expose `state.mode`, `state.speed`, `state.panic` and `state.target`. Police, cargo, garage, save and staging modules are deliberately deferred to the next turn.
+`window.sunspur` exposes the shared state and the live police, cargo, services, weapons, effects and radio systems for browser inspection. `police-tactics.js` owns patrol decisions, air support, witness reports and arrests. `cooler-cargo.js` owns cargo and carrying. `garage-upgrades.js` owns services and save restoration. `navigation.js` plots street waypoints. `effects.js`, `weapons.js`, `radio.js` and `shots.js` handle their respective systems. The existing `registerSystem` hook and `contact`, `jobrequested` and `key` events remain available. Game simulation uses a fixed 60 Hz step; the HUD refreshes from live records.
 
 ## Staging and screenshot procedure
 
-The routes below are recorded in `shots.json`. They will be implemented in the second turn; screenshot capture and the kit check are reserved for the third turn. This foundation does not set `window.__shotReady`. Existing starter images remain untouched until that capture pass.
+The four routes in `shots.json` arrange repeatable scenes with the normal actors and instruments. Cover uses golden light, a carried cooler, smoking van, converging patrols and a searchlight. Market uses midday light and Niko’s dialogue. Garage uses warm light and the repair/progression panel. Causeway uses dusk, a fast freezer van, four units and air support. Each exposes `window.__shotReady` only after two rendered frames and visible HUD elements. Scene positions remain fixed so the final capture is repeatable; lights, vapour, smoke and the instrument updates continue.
 
 | File under screenshots/ | Local route |
 | --- | --- |
@@ -69,7 +77,7 @@ The routes below are recorded in `shots.json`. They will be implemented in the s
 | 03-garage-upgrades.jpg | /?shot=garage&seed=17 |
 | 04-causeway-chase.jpg | /?shot=causeway&seed=17 |
 
-For the final capture pass, run the local server, open each route in Chrome, and wait until `window.__shotReady === true`. Capture the rendered viewport at 1280 pixels on its long side. Save JPEGs into `screenshots/` with exactly the names in `shots.json`, keep each image within 256 KiB and remove the starter images then. Do not capture the current foundation as if the staging routes were ready.
+The final screenshot and kit-check pass remains a separate turn. Open each route in Chrome and wait for `window.__shotReady === true`. Use a viewport with a 1280-pixel long side. Save JPEGs into `screenshots/` using the mapped names, keep each within 256 KiB and remove the starter images in that pass. Gameplay work does not replace or submit those images.
 
 ## Package
 
@@ -80,5 +88,7 @@ MAKEFUN_OUTPUT_DIR=out node main.ts
 ```
 
 This copies the local game and current screenshots, and writes `out/dossier.json` using the unchanged kit packager. To verify reproducibility, hash every output file, run the command again, and compare all hashes. Packaging creates local files; it does not submit an entry.
+
+`node tests/gameplay.mjs` exercises the six mission state paths, cargo ownership, payout scaling, police escape/arrest, shop purchases, upgrades, a spike hit, saves and scene initialization with a small DOM stand-in. It uses the real simulation modules and requires no installed packages. It complements the browser play-test; it cannot verify rendering, sound, HUD visibility or actual keyboard play.
 
 Referral code: **8kbmacyg**
