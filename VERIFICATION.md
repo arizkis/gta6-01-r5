@@ -1,6 +1,6 @@
 # Gameplay verification
 
-Verified in the configured Playwright MCP Chromium browser at 1280 × 720, using the local server on port 8080. The server launches with its coordinator-provided sandbox fix. No final screenshots or kit check were run.
+The earlier integration checks below used the configured Playwright MCP Chromium browser at 1280 × 720 and the local server on port 8080, with its coordinator-provided sandbox fix. Later sections record the visual passes and the replacement entry captures; descriptions of unchanged screenshots in earlier passes refer to those passes alone.
 
 This was an assisted integration session: browser keyboard and menu actions exercised interactions, while travel positions, police fixtures and selected fixed-step updates shortened the checks. Mission conditions and payout calculations ran through the real game modules. The checkpoint time produced by these fixtures is test data, not a normal driving record.
 
@@ -88,3 +88,26 @@ Fresh final diagnostics on each staged route and in free play recorded zero cons
 `node tests/gameplay.mjs` and `git diff --check` pass. Two new `MAKEFUN_OUTPUT_DIR=out node main.ts` runs compare byte-for-byte equal across all 29 files, totalling 2,854,592 bytes. Dossier SHA-256: `85a755b9e0ec3df1a5139ce34e20a75a1a9d8d4a761cf63a80ebde8d00de9be8`.
 
 `polish-preview/` was removed after the final views. `screenshots/` still contains exactly its four original entry images with the same hashes, and both protected vendor hashes match the preceding verification record. This follow-up changes only `game/src/shots.js`, `game/src/effects.js`, the lightbar visibility expression in `game/src/police-tactics.js`, `game/style.css` and this record. No submission or recording completion was performed.
+
+## Entry recapture / 2026-11-18
+
+Starting at `546d9b4`, the configured Playwright MCP browser captured each staging route directly into `screenshots/` at 1280 × 960, device scale 1 and JPEG quality 86. Every route used seed 17, reached simulation frame 90 and reported `window.__shotReady === true`; all nine control hints fit inside the viewport. Each file contains one complete browser render. No image editing or recompression was needed.
+
+All four saved files were opened for visual inspection, and their JPEG headers, dimensions, byte sizes and route mappings were checked on disk. The directory contains exactly these four files:
+
+| File | Bytes | Verified frame |
+| --- | ---: | --- |
+| 01-bailout-cover.jpg | 193726 | Low camera behind the 138 KM/H freezer van at sunset; three police units, helicopter searchlight, secured-cargo telemetry, Tavi portrait dialogue and full HUD. |
+| 02-market-mission.jpg | 163229 | Street-level crowded stall rows with Juno, Niko, produce crates, Niko portrait dialogue and full HUD. |
+| 03-garage-upgrades.jpg | 183342 | Warm workshop mouth with Juno, the pink Solace, luminous sign, complete repair/upgrade panel, progression summary and full HUD. |
+| 04-causeway-chase.jpg | 189312 | Low camera on the 160 KM/H pink Solace at dusk; four police units boxing in, helicopter, searchlight, Tavi portrait dialogue and full HUD. |
+
+Each JPEG is 1280 × 960 and below 262144 bytes. `shots.json` still maps the four filenames to `cover`, `market`, `garage` and `causeway`, respectively, with seed 17. The staged capture session reported zero console errors and four GPU ReadPixels performance warnings.
+
+The fresh kit's submission instructions and `check --help` were read before running `node cli/makefun.mjs check --kit . --repo /home/hatch/workspace/makefun/projects/gta6-01/entry-r6` from its unpacked directory. No additional flags are required for this GitHub-repository configuration. The check returned 4 passed, 0 failed, 16 skipped and 5 checked at submission. Transcript rows are deferred to the site's checks on sealed recordings; this local result does not verify them. The kit remained read only, and check scratch files stayed under this checkout's ignored `.verification/` directory.
+
+Two subsequent `MAKEFUN_OUTPUT_DIR=out node main.ts` runs each produced 29 files totalling 2,701,067 bytes. Their file lists and every file's complete byte buffers matched. `out/dossier.json` is 1,139,456 bytes, with SHA-256 `1d3a70b3284dc08666b5cc7b6604b2352a1974bcfef6b070882b9f19e750f5b1`.
+
+`vendor/makefun-game.ts` is byte-identical to starter commit `f4a0377`; `game/vendor/three.min.js` is byte-identical to the starting HEAD, `546d9b4`. Their SHA-256 values remain the ones recorded above. The existing authored capture line in `main.ts` and the factual scope header in `game/src/main.js` remain intact. README changes are confined to its staging/capture section; its badges, referral code, systems, jobs and controls match the starting commit. The deterministic gameplay suite passed before recapture.
+
+The final browser run used ordinary free play at `/?seed=17`, with `staged === false`. Real keyboard and menu input entered Juno's Solace, accelerated to a displayed 21 KM/H, tuned SUNSPUR FM, restarted the day, walked 5.1 world units, opened the six-job board and paused/resumed. Its initial load made 24 local requests. After that load, the entire interaction run made zero requests; external requests, console errors, failed requests, HTTP error responses and warnings were also zero. This pass performed no submission or recording completion.

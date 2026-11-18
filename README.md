@@ -68,7 +68,7 @@ Each feature is a plain ES module under `game/src/`. `config.js` defines dimensi
 
 ## Staging and screenshot procedure
 
-The committed driver is `game/src/shots.js`; `shots.json` pairs its four routes with the entry filenames. These routes use the normal city, actors, cargo, effects and HUD. Cover places Juno on foot under a searchlight, carrying the cooler beside her smoking van at golden hour. Market places her beside Niko, the objective diamond and fruit crates at midday; Niko speaks a line from the actual job opening. Garage opens Tavi’s repair and upgrade panel with three completed jobs and a checkpoint record. Causeway arranges a fast freezer van, two patrols alongside, a braking unit ahead and another behind, with dusk light and air support.
+`game/src/shots.js` stages the four scenes, and `shots.json` assigns their routes to the entry filenames. Each scene renders the game's own city, actors, effects and HUD through a low street-level camera. The cover follows Juno's freezer van at 138 KM/H in golden-hour sunset grading, with three police units, secured cooler cargo and a helicopter searchlight. The midday market scene puts Juno and Niko among crowded stall rows and fruit crates, with Niko's job dialogue open. The garage frames Juno and the damaged pink Solace at the warm workshop mouth, beneath its luminous sign, beside the complete repair and upgrade panel. The causeway shows the pink Solace at 160 KM/H under a magenta dusk sky, boxed by four units with air support. Dialogue portraits are drawn on canvas at runtime from the game's character designs.
 
 Each scene advances exactly 90 simulation ticks in batches of six per rendered frame, then stops rendering. This fixes the clock, police lights, rotor, smoke, skid marks and cooler readings independently of computer speed. `window.__shotFrame === 90` identifies that state. `window.__shotReady` becomes true after the settled frame is rendered and all required HUD rectangles fit inside the viewport. Staging neither loads nor saves the player’s day. Capture at 1280×960 with device scale 1; the taller frame gives every solid HUD panel room without overlap.
 
@@ -79,7 +79,7 @@ Each scene advances exactly 90 simulation ticks in batches of six per rendered f
 | 03-garage-upgrades.jpg | /?shot=garage&seed=17 |
 | 04-causeway-chase.jpg | /?shot=causeway&seed=17 |
 
-Start `node serve.ts` in this repository. In the Playwright MCP browser, set the viewport to 1280×960 and capture the four routes in table order. The following function can be passed to `browser_run_code_unsafe`; set `repo` to this checkout’s absolute path if it moves. Its pairs match `shots.json` and save one unaltered browser render per route directly as a JPEG. Quality 86 is the capture setting; inspect the saved files and reduce JPEG quality with a local encoder only if a file exceeds 262144 bytes. Do not crop, combine or paint over a capture.
+Run `node serve.ts` from this checkout and use the configured Playwright MCP browser at 1280×960 with device scale 1. Visit the routes in filename order and wait for `window.__shotReady === true` at frame 90 before saving. The function below works with `browser_run_code_unsafe`; its paths target this repository and its route pairs match `shots.json`. Each JPEG records one complete browser frame at quality 86. Check the actual saved bytes against the 262144-byte cap; use a local JPEG encoder to lower quality only when necessary. Keep the full frame without cropping, painting, compositing or stitching.
 
 ```js
 async (page) => {
@@ -100,7 +100,7 @@ async (page) => {
 }
 ```
 
-List the four JPEGs with exact byte sizes and dimensions, and open each saved image to verify its scene and full HUD. `screenshots/` must contain only the four mapped names: remove `1-start.jpg`, `2-play.jpg` and `3-end.jpg` after replacing them. Check the console for errors. For a separate real play-test, navigate to `/?seed=17`, start the day and exercise walking, vehicle entry, driving, radio, the board and pause controls. Network checks apply after the initial local asset load; there should be no gameplay requests.
+After capture, list each saved JPEG's exact byte size and dimensions, then open all four files to inspect the staged scene and full HUD. Confirm that `screenshots/` contains exactly the four mapped names, each at most 256 KiB, with a long side no greater than 1280 pixels and a short side at least 480 pixels. Check the browser console for errors. Separately visit `/?seed=17`, start free play and exercise walking, vehicle entry, driving, radio, the job board and pause. Count network requests after the local static assets finish loading; gameplay should make none.
 
 ## Package
 
