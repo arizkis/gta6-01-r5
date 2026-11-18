@@ -46,11 +46,21 @@ export function createPlayer(scene, city) {
     player.phase += dt * player.walkingSpeed * 1.5;
     animateFigure(player, player.phase, moving);
   }
+  function clearVehiclePath(from, to, vehicle) {
+    const steps = Math.max(1, Math.ceil(Math.hypot(to.x - from.x, to.z - from.z) / player.radius));
+    for (let i = 1; i <= steps; i++) {
+      const progress = i / steps;
+      const x = from.x + (to.x - from.x) * progress;
+      const z = from.z + (to.z - from.z) * progress;
+      if (city.blocked(x, z, player.radius, vehicle)) return false;
+    }
+    return true;
+  }
   function findInteraction(contacts, vehicles) {
     if (player.vehicle) return player.interaction = { type: 'exit', label: 'E  /  EXIT VEHICLE' };
     const nearContact = contacts.find(c => player.position.distanceTo(c.position) < 24);
     if (nearContact) return player.interaction = { type: 'contact', target: nearContact, label: `E  /  TALK TO ${nearContact.name.toUpperCase()}` };
-    const nearby = vehicles.filter(v => !v.occupied && Math.abs(v.speed) < 15 && player.position.distanceTo(v.position) < 31).sort((a, b) => player.position.distanceTo(a.position) - player.position.distanceTo(b.position));
+    const nearby = vehicles.filter(v => !v.occupied && Math.abs(v.speed) < 15 && player.position.distanceTo(v.position) < 31 && clearVehiclePath(player.position, v.position, v)).sort((a, b) => player.position.distanceTo(a.position) - player.position.distanceTo(b.position));
     if (nearby.length) return player.interaction = { type: 'enter', target: nearby[0], label: `E  /  ENTER ${nearby[0].name.toUpperCase()}` };
     player.interaction = null;
     return null;
@@ -75,7 +85,7 @@ export function createPlayer(scene, city) {
       const gap = car.model.width / 2 + 9;
       const x = car.position.x + Math.cos(car.heading) * side * gap + Math.sin(car.heading) * back;
       const z = car.position.z - Math.sin(car.heading) * side * gap + Math.cos(car.heading) * back;
-      if (city.blocked(x, z, player.radius)) continue;
+      if (city.blocked(x, z, player.radius) || !clearVehiclePath(car.position, { x, z }, car)) continue;
       player.position.set(x, 1.5, z);
       player.heading = car.heading;
       player.mesh.rotation.y = player.heading;

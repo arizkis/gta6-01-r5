@@ -31,13 +31,23 @@ Tested the local game in real Chrome at 1280 × 800 through Playwright MCP brows
 
 The first automation attempt used an exact START name that omitted its arrow glyph; it timed out and was corrected to the button's ID. A straight driving attempt hit the palm and timed out; the continued test reversed and steered around the obstacle. Both were resolved before committing. No 429, 503 or usage-limit response occurred.
 
-## Packaging and repository checks
+## Original packaging and repository checks
 
 JavaScript syntax checks and `git diff --check` passed. `git diff --exit-code f4a0377 -- vendor/makefun-game.ts` passed: the kit packager is unchanged. The downloaded Three.js file is 670,681 bytes, with SHA-256 `3e690ac7d180b0aadf0891bea39eec643e29e2d3e75c99b18689518665f69ba6`.
 
 The final two runs of `MAKEFUN_OUTPUT_DIR=out node main.ts` both succeeded. SHA-256 comparison of every output file found all **19 files byte-identical**, including `dossier.json` and the three untouched starter screenshots. The final dossier SHA-256 is `0a16bc0090d091e988996bbd2f2e16954db1415dd6149aafa9430c13e4027373`. The sorted file/hash manifest digest is `6bb370d49990e8786259c3a38b9f61982ff8b6b15d8109c08610aea786cc2164`.
 
 Earlier packaging pairs also matched, before the restart-state and trailing-whitespace adjustments. Generated output and temporary browser inspection files are ignored by Git. No application asset depends on those files.
+
+## Completion pass — 2026-11-18
+
+Repeated the short Playwright MCP check at 1280 × 800: title and START, keyboard walking at 7 units/s, sprinting at 11, entering Sunspur Solace, driving to x = 510.66 at 50.4 units/s with a following camera and visible vehicle card, pausing and opening the board. All six jobs appeared; only the first was unlocked. The load made 15 local requests, with zero external or additional runtime requests and zero console errors. The four software-renderer warnings remained.
+
+Confirmed all 12 feature modules and their scope comments, the authored root entrypoint comment, three correctly linked badges, referral code, absence of the owner placeholder, all four screenshot mappings with seed 17, and the unchanged kit packager relative to f4a0377.
+
+Reproduced a vehicle-access collision gap by placing a thin fence between Juno and a nearby car: the original code offered entry through it. Added a short sampled path check in player.js for entry and exit. After reload, the same fence suppressed the prompt and prevented entry; removing it restored normal entry. With a fence across the preferred exit, Juno used the clear opposite side at (480, 659), without crossing the barrier. Temporary test blockers were removed and the day reset.
+
+Both packaging runs after this change succeeded and all 19 output files matched byte for byte. Dossier SHA-256: `671e8b6f1e9ff6972813052c7132969e8bbbc3a0d696a589e88e163f6a1f60e0`. File/hash manifest digest: `2d172f76067af68ab6523bf3876b92e16c758d2de5143dd01692f6412fe17668`. Syntax and diff checks passed. No screenshots, gameplay systems, submissions or recording actions were added in this pass.
 
 ## Deliberately deferred
 
