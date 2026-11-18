@@ -171,7 +171,7 @@ export function createPolice(game) {
       if (!game.staged && u.tactic === 'ROADBLOCK' && gap < 24) { u.speed = 0; u.heading = u.blockHeading ?? h + Math.PI / 2; }
       if (!game.staged) u.mesh.rotation.y = u.heading;
       syncVehicleBlocker(u);
-      u.flash.forEach((light, k) => { light.visible = Math.floor(state.elapsed * 8 + k) % 2 === 0; });
+      u.flash.forEach((light, k) => { light.visible = Math.floor(state.elapsed * 8 + k + (game.staged ? i : 0)) % 2 === 0; });
       if (car && u.distance < car.radius + 10 && u.speed > 20 && car.collisionCooldown <= 0) {
         game.impact(Math.min(65, u.speed * 0.6)); car.speed *= 0.72; car.heading += (i % 2 ? 1 : -1) * 0.08; car.collisionCooldown = 0.7;
       }

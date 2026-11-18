@@ -249,7 +249,7 @@ meter::-webkit-meter-optimum-value { background: var(--teal); border-radius: 0; 
 #portrait img { width: 100%; height: 100%; object-fit: cover; }
 #speaker { font-size: 10px; }
 #dialogue-line { font-size: 12px; line-height: 1.35; margin-top: 4px; }
-.controls-strip { min-height: 31px; padding: 8px; font-size: 8px; gap: 12px; background: #102d38ed; }
+.controls-strip { min-height: 34px; padding: 8px; font-size: 10px; gap: 12px; background: #102d38ed; }
 .notice { bottom: 139px; padding: 7px 10px; font-size: 11px; }
 .interaction { bottom: 137px; padding: 7px 10px; font-size: 11px; }
 .service-sheet { top: 145px; right: 215px; width: 300px; max-height: calc(100vh - 198px); padding: 12px; border-top-width: 3px; }
@@ -303,7 +303,7 @@ meter::-webkit-meter-optimum-value { background: var(--teal); border-radius: 0; 
   .dialogue { width: 325px; gap: 8px; }
   #speaker { font-size: 9px; }
   #dialogue-line { font-size: 10px; }
-  .controls-strip { min-height: 27px; font-size: 7px; gap: 7px; padding: 6px; }
+  .controls-strip { display: grid; grid-template-columns: repeat(5, auto); min-height: 37px; font-size: 9px; column-gap: 12px; row-gap: 2px; padding: 4px 8px; }
   .service-sheet { top: 112px; right: 177px; width: 267px; max-height: calc(100vh - 154px); padding: 9px; }
   .service-sheet h2 { font-size: 17px; }
   .service-option { padding: 6px; }

@@ -103,6 +103,8 @@ export function stageShot(game) {
     player.position.set(1378, 1.5, 615); player.heading = -0.6; player.mesh.rotation.y = player.heading;
     place(van, 1482, 675, 1.57);
     crowd.contacts[1].position.set(1390, 1.5, 609); crowd.contacts[1].mesh.rotation.y = 2.5;
+    crowd.contacts[1].mesh.children.filter(child => child.isSprite).forEach(sign => { sign.visible = false; });
+    director.marker.scale.setScalar(0.55);
     state.navigation.target = crowd.contacts[1].position;
     for (const x of [1348, 1413]) for (const z of [554, 590, 626]) {
       box(set, x, 7, z, 24, 11, 15, PALETTE.teal);
@@ -121,9 +123,9 @@ export function stageShot(game) {
     city.setTimeOfDay('golden');
     state.mission.completed = director.definitions.slice(0, 3).map(j => j.id);
     player.state.bestTime = 137.4;
-    player.position.set(1743, 1.5, 1474); player.heading = 0.3; player.mesh.rotation.y = 0.3;
+    player.position.set(1739, 1.5, 1470); player.heading = 0.3; player.mesh.rotation.y = 0.3;
     const car = game.vehicles.find(v => v.id === 'juno-solace');
-    place(car, 1758, 1460, 0.4); car.condition = 42; player.lastVehicle = car;
+    place(car, 1753, 1458, 0.4); car.condition = 42; player.lastVehicle = car;
     city.root.children.filter(child => child.isSprite && child.name === "TAVI'S WORKSHOP").forEach(sign => { sign.visible = false; });
     crowd.contacts[0].position.set(1763, 1.5, 1451);
     crowd.contacts[0].mesh.children.filter(child => child.isSprite).forEach(sign => { sign.visible = false; });
@@ -131,7 +133,7 @@ export function stageShot(game) {
     box(set, 1780, 33, 1448, 85, 3, 5, '#e58b43');
     const workLight = new THREE.PointLight('#ffc078', 1800, 140, 2);
     workLight.position.set(1755, 26, 1482); set.add(workLight);
-    for (const x of [1744, 1816]) {
+    for (const x of [1741, 1816]) {
       box(set, x, 15, 1454, 3, 28, 3, '#ee8551'); box(set, x, 10, 1460, 12, 2, 3, '#d1a76c');
       box(set, x, 12, 1449, 18, 14, 1, '#24565e');
       for (let i = 0; i < 6; i++) box(set, x - 6 + i * 2.4, 14, 1450, 0.6, 6 - i % 3, 1, '#c4d4c1');

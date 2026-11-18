@@ -71,3 +71,20 @@ The tracked `screenshots/` files remain unchanged. Protected vendor hashes remai
 - `vendor/makefun-game.ts`: `dc67187521b24025ff952f8c231485a6eb92d6d71d29edd2a08154ffb4376129`
 
 Changed files: `game/src/city.js`, `config.js`, `effects.js`, `hud.js`, `main.js`, `pedestrians.js`, `player.js`, `police-tactics.js`, `portraits.js`, `shots.js`, `vehicles.js`; `game/style.css`; `tests/gameplay.mjs`; this verification record. Preview captures were confined to `polish-preview/` and removed before committing. No submission or recording completion was performed.
+
+## Follow-up visual verification / 2026-11-18
+
+Starting from `f64d3d6222d95bd08ff1da3f16b87016021c9fdc`, Playwright MCP re-viewed all four seed-17 routes at 768 × 480 before any edits, then viewed each again after one focused presentation pass.
+
+- Cover passes: the 138 KM/H freezer van, four stars, three police units, low sun, palm-lined street, helicopter cone and drawn Tavi portrait remain visible. Less opaque cooler vapour reveals more of the van and nearby police car.
+- Market passes: Juno and Niko stand among crowded awnings, crates and shoppers in warm daylight. The oversized floating Niko label is hidden in this staged route, and its objective marker is smaller. Niko's identity and drawn portrait remain in the dialogue bar.
+- Garage passes: Juno and the car are separated more clearly beside the full upgrade panel. A small shift of the left lift keeps it clear of the repositioned car; the warm work light, luminous sign, tires and tool boards remain.
+- Causeway passes: the pink car reads 160 KM/H beneath a saturated dusk sky, with the horizon sun, skyline, four police units and helicopter. Thinner drift smoke reveals its body, and staggered staged lightbar phases show both red and blue.
+
+The bottom control hints use larger text and two rows at contact-sheet size. All nine hints fit inside the viewport. Each route reaches frame 90 with every required HUD rectangle inside the viewport and the wanted, police, cooler and vehicle panels separated vertically. The three dialogue routes load their generated 160-pixel-wide portrait images. No gameplay rules or tuning changed.
+
+Fresh final diagnostics on each staged route and in free play recorded zero console errors, failed requests or HTTP error responses. Each navigation loaded 24 successful local static resources; external requests and requests after initial loading were zero. The browser session reported four GPU ReadPixels performance warnings. Free play verified E vehicle entry, acceleration, F tuning SUNSPUR FM, restart and walking 3.4 world units.
+
+`node tests/gameplay.mjs` and `git diff --check` pass. Two new `MAKEFUN_OUTPUT_DIR=out node main.ts` runs compare byte-for-byte equal across all 29 files, totalling 2,854,592 bytes. Dossier SHA-256: `85a755b9e0ec3df1a5139ce34e20a75a1a9d8d4a761cf63a80ebde8d00de9be8`.
+
+`polish-preview/` was removed after the final views. `screenshots/` still contains exactly its four original entry images with the same hashes, and both protected vendor hashes match the preceding verification record. This follow-up changes only `game/src/shots.js`, `game/src/effects.js`, the lightbar visibility expression in `game/src/police-tactics.js`, `game/style.css` and this record. No submission or recording completion was performed.

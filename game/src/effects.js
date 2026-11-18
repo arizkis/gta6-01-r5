@@ -37,7 +37,7 @@ export function createEffects(scene, seed) {
   const geometry = new THREE.IcosahedronGeometry(1, 0);
   function puff(point, color, size = 2, life = 1.4, velocity = {}) {
     if (particles.length > 200) return;
-    const opacity = color === '#ffc17b' ? 0.55 : 0.18;
+    const opacity = color === '#ffc17b' ? 0.55 : color === '#8de4f5' ? 0.075 : color === '#9caeac' ? 0.10 : 0.18;
     const mesh = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({ color, transparent: true, opacity, depthWrite: false }));
     mesh.position.set(point.x, point.y ?? 5, point.z);
     mesh.scale.setScalar(size);
