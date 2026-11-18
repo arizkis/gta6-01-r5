@@ -183,69 +183,130 @@ meter::-webkit-meter-optimum-value { background: var(--teal); border-radius: 0; 
 #busted { position: fixed; inset: 0; z-index: 20; background: #163d4988; display: flex; flex-direction: column; justify-content: center; align-items: center; }
 #busted strong { font-size: 100px; color: var(--pink); letter-spacing: 12px; }
 #busted p { padding: 14px 25px; background: var(--ink); }
-/* A tall desktop viewport gives every instrument its own solid, readable space. */
-@media (min-width: 1100px) and (min-height: 800px) {
-  .panel { padding: 14px 16px; }
-  .brand, .weapons, .vitals { left: 18px; width: 266px; }
-  .brand, .mission, .wanted { top: 18px; }
-  .brand .eyebrow { font-size: 11px; letter-spacing: .6px; }
-  .brand strong { font-size: 27px; }
-  #district { font-size: 13px; }
-  .mission { width: 600px; }
-  .mission .eyebrow { font-size: 12px; }
-  .mission h2 { font-size: 27px; }
-  .mission p { font-size: 15px; }
-  .mission .next-line { font-size: 13px; }
-  #stage-pips span { height: 6px; width: 44px; }
-  .wanted, .police, .cooler { right: 18px; width: 266px; }
-  .wanted-heading .eyebrow, #time-preset { font-size: 11px; }
-  #wanted-stars { font-size: 34px; letter-spacing: 2px; }
-  #dispatch { font-size: 12px; min-height: 50px; margin: 9px 0; }
-  .heat-row { margin-bottom: 10px; }
-  .heat-row span { font-size: 12px; }
-  .heat-row meter { height: 7px; }
-  .police { top: 260px; }
-  .police h2, .cooler h2 { font-size: 14px; }
-  #police-units { line-height: 1.4; }
-  .unit-row { font-size: 12px; padding: 6px 0; }
-  .cooler { top: 458px; }
-  .cooler dl div { padding: 4px 0; }
-  .cooler dt { font-size: 13px; }
-  .cooler dd { font-size: 22px; }
-  #cargo-status { font: 12px/1.4 'Trebuchet MS', Arial, sans-serif; }
-  .weapons { top: 140px; padding: 12px 10px; }
-  #weapon-options span { font-size: 12px; padding: 8px 4px; }
-  .tank-row { font-size: 12px; }
-  .vitals { top: 238px; }
-  .meter-row { font-size: 13px; margin-bottom: 13px; }
-  .meter-row label { min-width: 60px; }
-  .meter-row meter { height: 10px; }
-  .respect-title { font-size: 12px; letter-spacing: .5px; }
-  #respect-meters { gap: 8px; }
-  #respect-meters label { font-size: 12px; }
-  #respect-meters small { font-size: 12px; }
-  #respect-meters meter { height: 7px; }
-  .map-panel { left: 28px; bottom: 75px; width: 226px; }
-  .map-frame { width: 226px; height: 226px; }
-  #minimap { width: 210px; height: 210px; }
-  .map-north { left: 96px; font-size: 13px; }
-  #map-district { font-size: 13px; }
-  .vehicle { right: 18px; bottom: 75px; width: 266px; }
-  .vehicle .eyebrow, .vehicle-numbers { font-size: 12px; }
-  .vehicle h2 { font-size: 22px; }
-  .vehicle-numbers strong { font-size: 34px; }
-  #condition { font-size: 21px; }
-  #spike-charges, #radio-station { font-size: 12px; }
-  .dialogue { bottom: 75px; width: 640px; gap: 14px; }
-  #portrait { min-width: 54px; height: 62px; font-size: 24px; }
-  #speaker { font-size: 14px; }
-  #dialogue-line { font-size: 17px; line-height: 1.4; }
-  .controls-strip { min-height: 50px; gap: 16px; font-size: 12px; }
-  .service-sheet { top: 200px; right: 310px; width: 420px; max-height: calc(100vh - 285px); padding: 18px; }
-  .service-sheet .eyebrow { font-size: 11px; letter-spacing: .4px; }
-  .service-sheet header button { font-size: 12px; }
-  .service-option { padding: 12px; }
-  .service-option strong { font-size: 15px; }
-  .service-option span { font-size: 13px; line-height: 1.35; }
-  .progression { font-size: 12px; line-height: 1.9; }
+/* Compact instruments leave the horizon and the action between the two columns. */
+#hud { --column: 184px; --edge: 14px; }
+.panel { padding: 9px 10px; background: #12333eeb; border-color: #95b1a76b; box-shadow: 0 3px 12px #081b2933; }
+.eyebrow { font-size: 9px; letter-spacing: 1px; margin-bottom: 4px; }
+.brand, .weapons, .vitals { left: var(--edge); width: var(--column); }
+.brand, .mission, .wanted { top: 12px; }
+.brand { background: #ffe3afd9; border-bottom-width: 3px; }
+.brand .eyebrow { font-size: 7px; letter-spacing: .5px; }
+.brand strong { font-size: 21px; }
+#district { font-size: 9px; letter-spacing: .6px; margin-top: 4px; }
+.mission { width: min(390px, 43vw); padding: 8px 13px; }
+.mission h2 { font-size: 21px; margin-bottom: 4px; }
+.mission p { font-size: 11px; line-height: 1.3; }
+.mission .next-line { font-size: 9px; margin-top: 5px; }
+#stage-pips { margin-top: 6px; gap: 4px; }
+#stage-pips span { width: 24px; height: 3px; }
+.wanted, .police, .cooler { right: var(--edge); width: var(--column); }
+.wanted { min-height: 0; }
+.wanted-heading .eyebrow, #time-preset { font-size: 8px; }
+#wanted-stars { font-size: 25px; letter-spacing: 1px; }
+#dispatch { font: 9px/1.35 monospace; min-height: 0; margin: 5px 0 7px; }
+.heat-row { gap: 5px; margin: 0 0 6px; }
+.heat-row span { font-size: 8px; }
+.cash-clock { padding-top: 6px; }
+#cash { font-size: 22px; }
+#clock { font-size: 15px; }
+.police { top: 182px; }
+.police h2, .cooler h2 { font-size: 10px; margin-bottom: 5px; letter-spacing: .6px; }
+#police-units { line-height: 1.3; }
+.unit-row { font-size: 9px; padding: 4px 0; }
+.cooler { top: 323px; border-left-width: 2px; }
+.cooler dl div { padding: 2px 0; }
+.cooler dt { font-size: 10px; }
+.cooler dd { font-size: 16px; }
+#cargo-status { font: 8px/1.35 monospace; margin-top: 5px; }
+.weapons { top: 100px; padding: 7px; }
+#weapon-options { gap: 2px; }
+#weapon-options span { font-size: 8px; padding: 5px 3px; }
+.tank-row { gap: 7px; font-size: 8px; margin: 5px 2px 0; }
+.vitals { top: 165px; padding: 10px; }
+.meter-row { font-size: 10px; gap: 5px; margin-bottom: 7px; }
+.meter-row label { min-width: 44px; }
+.meter-row meter { width: 55px; height: 6px; }
+.meter-row b { width: 18px; }
+.respect-title { font-size: 8px; padding-top: 7px; margin-top: 7px; letter-spacing: .5px; }
+#respect-meters { gap: 6px; margin-top: 7px; }
+#respect-meters label { font-size: 8px; }
+#respect-meters small { font-size: 8px; margin: 3px 0; }
+.map-panel { left: var(--edge); bottom: 49px; width: 146px; }
+.map-frame { width: 146px; height: 146px; padding: 5px; }
+#minimap { width: 132px; height: 132px; }
+.map-north { left: 59px; padding: 2px 5px; font-size: 9px; }
+#map-district { font-size: 8px; margin-top: 5px; padding: 4px; }
+.vehicle { right: var(--edge); bottom: 49px; width: var(--column); padding: 8px 10px; border-top-width: 2px; }
+.vehicle .eyebrow { font-size: 8px; }
+.vehicle h2 { font-size: 14px; margin: 3px 0 5px; }
+.vehicle-numbers { font-size: 9px; gap: 5px; }
+.vehicle-numbers strong { font-size: 29px; }
+#condition { font-size: 15px; margin-top: 2px; }
+#radio-station { font-size: 8px; margin-top: 6px; padding-top: 5px; }
+#spike-charges { font-size: 8px; margin-top: 4px; }
+.dialogue { bottom: 49px; width: min(420px, 43vw); padding: 8px 10px; gap: 10px; border-left-width: 2px; }
+#portrait { min-width: 45px; width: 45px; height: 52px; overflow: hidden; background: var(--pink); }
+#portrait img { width: 100%; height: 100%; object-fit: cover; }
+#speaker { font-size: 10px; }
+#dialogue-line { font-size: 12px; line-height: 1.35; margin-top: 4px; }
+.controls-strip { min-height: 31px; padding: 8px; font-size: 8px; gap: 12px; background: #102d38ed; }
+.notice { bottom: 139px; padding: 7px 10px; font-size: 11px; }
+.interaction { bottom: 137px; padding: 7px 10px; font-size: 11px; }
+.service-sheet { top: 145px; right: 215px; width: 300px; max-height: calc(100vh - 198px); padding: 12px; border-top-width: 3px; }
+.service-sheet header { margin-bottom: 7px; }
+.service-sheet h2 { font-size: 20px; }
+.service-sheet .eyebrow { font-size: 7px; letter-spacing: .4px; }
+.service-sheet header button { font-size: 8px; padding: 6px; }
+.service-option { padding: 8px; margin: 5px 0; }
+.service-option strong { font-size: 11px; }
+.service-option span { font-size: 10px; line-height: 1.3; margin-top: 3px; }
+.progression { font-size: 10px; line-height: 1.65; margin-top: 8px; padding-top: 7px; }
+@media (max-height: 650px), (max-width: 900px) {
+  #hud { --column: 156px; --edge: 8px; }
+  .panel { padding: 6px 8px; }
+  .brand, .mission, .wanted { top: 8px; }
+  .brand strong { font-size: 17px; }
+  .brand .eyebrow { font-size: 6px; }
+  #district { font-size: 8px; }
+  .mission { width: 310px; }
+  .mission h2 { font-size: 17px; }
+  .mission p { font-size: 10px; }
+  .mission .eyebrow, .mission .next-line { font-size: 8px; }
+  .weapons { top: 78px; padding: 5px; }
+  #weapon-options span { font-size: 7px; padding: 4px 2px; }
+  .vitals { top: 130px; }
+  .meter-row { font-size: 9px; margin-bottom: 5px; }
+  .respect-title { font-size: 7px; }
+  #respect-meters label, #respect-meters small { font-size: 7px; }
+  #wanted-stars { font-size: 22px; }
+  #dispatch { font-size: 8px; margin: 3px 0 4px; }
+  #cash { font-size: 18px; }
+  .police { top: 148px; }
+  .police h2, .cooler h2 { font-size: 9px; }
+  .unit-row { font-size: 8px; padding: 2px 0; }
+  .cooler { top: 242px; }
+  .cooler dl { display: grid; grid-template-columns: repeat(3, 1fr); gap: 3px; }
+  .cooler dl div { display: block; padding: 0; }
+  .cooler dt { font-size: 7px; }
+  .cooler dd { font-size: 13px; }
+  #cargo-status { font-size: 7px; line-height: 1.2; margin-top: 4px; }
+  .map-panel { width: 116px; bottom: 39px; }
+  .map-frame { width: 116px; height: 116px; padding: 4px; }
+  #minimap { width: 104px; height: 104px; }
+  .map-north { left: 44px; }
+  #map-district { font-size: 7px; }
+  .vehicle, .dialogue { bottom: 39px; }
+  .vehicle h2 { font-size: 12px; }
+  .vehicle-numbers strong { font-size: 25px; }
+  .vehicle-numbers { font-size: 8px; }
+  #spike-charges, #radio-station { font-size: 7px; }
+  .dialogue { width: 325px; gap: 8px; }
+  #speaker { font-size: 9px; }
+  #dialogue-line { font-size: 10px; }
+  .controls-strip { min-height: 27px; font-size: 7px; gap: 7px; padding: 6px; }
+  .service-sheet { top: 112px; right: 177px; width: 267px; max-height: calc(100vh - 154px); padding: 9px; }
+  .service-sheet h2 { font-size: 17px; }
+  .service-option { padding: 6px; }
+  .service-option strong { font-size: 10px; }
+  .service-option span, .progression { font-size: 9px; }
 }

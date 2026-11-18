@@ -8,7 +8,7 @@ export const DISTRICTS = [
   { name: 'MARIGOLD MARKET', color: '#efbd65', test: (x, z) => x >= 1000 },
   { name: 'CITRUS COMMONS', color: '#a6bd85', test: () => true },
 ];
-export const PALETTE = { cream: '#ffe5b2', pink: '#ef8ca6', orange: '#f7a568', teal: '#358e91', road: '#526c73', pavement: '#ddcba5', sea: '#3ca9b3', grass: '#83a98b', ink: '#173e49' };
+export const PALETTE = { cream: '#ffe1a1', pink: '#f35491', orange: '#ff8b39', teal: '#087f88', road: '#344c59', pavement: '#c89e83', sea: '#068eaa', grass: '#4d907e', ink: '#173e49' };
 export const SPEEDS = { walk: 17, sprint: 28, carMax: 150, reverse: 38, acceleration: 42, braking: 80, traffic: 48 };
 export const SAVE_KEY = 'sunspur.cooler-caper.v1';
 export const SPAWN = { x: 472, z: 648, heading: 0 };

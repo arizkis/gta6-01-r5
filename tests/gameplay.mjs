@@ -19,7 +19,7 @@ function element() {
   return { hidden: true, style: {}, dataset: {}, children: [], className: '', textContent: '',
     append(...nodes) { this.children.push(...nodes); }, replaceChildren() { this.children = []; }, addEventListener() {},
     getBoundingClientRect() { return { left: 0, top: 0, right: 1280, bottom: 960, width: 1280, height: 960 }; },
-    getContext() { return new Proxy({}, { get: (_, key) => key === 'measureText' ? () => ({ width: 20 }) : () => {} }); },
+    getContext() { return new Proxy({}, { get: (_, key) => key === 'measureText' ? () => ({ width: 20 }) : key === 'createRadialGradient' ? () => ({ addColorStop() {} }) : () => {} }); },
   };
 }
 globalThis.document = { createElement: element, getElementById(id) { if (!elements.has(id)) elements.set(id, element()); return elements.get(id); } };
@@ -131,7 +131,7 @@ for (const [shot, light] of [['cover', 'golden'], ['market', 'midday'], ['garage
   game.shot = shot; player.vehicle = null; player.mesh.visible = true;
   const staging = stageShot(game);
   assert.ok(staging); assert.equal(city.timeOfDay, light); assert.equal(window.__shotReady, false);
-  if (shot === 'cover') { assert.equal(player.carrying, true); assert.ok(game.cargo.prop.visible); assert.equal(state.wanted.level, 4); }
+  if (shot === 'cover') { assert.equal(player.vehicle, parked.freezerVan); assert.equal(player.carrying, false); assert.equal(game.cargo.prop.visible, false); assert.equal(state.wanted.level, 4); assert.equal(Math.round(player.vehicle.speed * 1.8), 138); }
   if (shot === 'garage') assert.equal(game.services.active.id, 'garage');
   if (shot === 'causeway') { assert.equal(state.wanted.level, 5); assert.equal(game.police.units.length, 4); assert.ok(player.vehicle.speed > 80); }
   if (shot === 'market') {

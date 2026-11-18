@@ -3,6 +3,7 @@ import * as THREE from '../vendor/three.min.js';
 import { box, material, label, bakeMeshes } from './city.js';
 import { STREETS, PALETTE } from './config.js';
 import { createRandom } from './random.js';
+import { headlightRig } from './effects.js';
 
 export const MODELS = [
   { name: 'Sunspur Solace', length: 23, width: 12, height: 7, maxSpeed: 145 },
@@ -47,6 +48,8 @@ export function createVehicle(scene, options = {}) {
     label(mesh, 'COLD / HANDLE WITH CARE', 0, 24, -8, 38);
   }
   bakeMeshes(mesh);
+  const headlights = headlightRig(w, l);
+  mesh.add(headlights);
   const door = new THREE.Group();
   if (model.freezer) {
     door.position.set(-w / 2, 8, l * 0.25);
@@ -60,7 +63,7 @@ export function createVehicle(scene, options = {}) {
     position: mesh.position, heading: options.heading ?? 0, speed: 0, condition: 100,
     occupied: false, traffic: options.traffic ?? false, freezer: !!model.freezer,
     radius: Math.hypot(w / 2, l / 2) * 0.76,
-    collisionCooldown: 0, upgrades: {}, door,
+    collisionCooldown: 0, upgrades: {}, door, headlights,
   };
   mesh.position.set(options.x ?? 0, 1.4, options.z ?? 0);
   mesh.rotation.y = vehicle.heading;

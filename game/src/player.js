@@ -5,7 +5,7 @@ import { createFigure, animateFigure } from './pedestrians.js';
 import { syncVehicleBlocker } from './vehicles.js';
 
 export function createPlayer(scene, city) {
-  const figure = createFigure('#ef946f', '#ce9978');
+  const figure = createFigure('#ef946f', '#ce9978', 'juno');
   scene.add(figure.mesh);
   const player = {
     name: 'Juno Reed', ...figure, position: figure.mesh.position, heading: Math.PI,

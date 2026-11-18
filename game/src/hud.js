@@ -1,9 +1,12 @@
 // Scope: render shared game state into instruments, prompts and the dialogue bar.
 import { createMinimap } from './minimap.js';
+import { portraitFor } from './portraits.js';
 
 export function createHUD(city) {
   const element = id => document.getElementById(id);
   const map = createMinimap(element('minimap'), city);
+  const portrait = document.createElement('img');
+  portrait.alt = ''; element('portrait').replaceChildren(portrait);
   const money = amount => `$${Math.round(amount).toLocaleString('en-US')}`;
   let noticeUntil = 0, pipsKey = '';
   function notify(text, seconds = 4) {
@@ -47,7 +50,9 @@ export function createHUD(city) {
     units.forEach(unit => {
       const row = document.createElement('div'); row.className = 'unit-row';
       const distance = unit.distance ?? Math.hypot((unit.position?.x ?? unit.x) - position.x, (unit.position?.z ?? unit.z) - position.z);
-      row.textContent = `${unit.callsign} / ${Math.round(distance)}m / ${unit.tactic}`;
+      const tactic = { 'BOXING IN': 'BOX', 'PIT MANEUVER': 'PIT', ROADBLOCK: 'BLOCK', PURSUIT: 'CHASE', RAMMING: 'RAM', BRAKING: 'BRAKE' }[unit.tactic] ?? unit.tactic;
+      row.textContent = `${unit.callsign.replace('UNIT ', '')} / ${Math.round(distance)}m / ${tactic}`;
+      row.title = `${unit.callsign} / ${unit.tactic}`;
       element('police-units').append(row);
     });
     element('cooler-panel').hidden = !cooler.active;
@@ -75,8 +80,8 @@ export function createHUD(city) {
     element('dialogue').hidden = !state.dialogue.active;
     element('speaker').textContent = state.dialogue.speaker ?? '';
     element('dialogue-line').textContent = state.dialogue.line ?? '';
-    element('portrait').textContent = state.dialogue.initials ?? 'JR';
-    element('portrait').style.backgroundColor = state.dialogue.color ?? '#ed9bae';
+    const portraitURL = portraitFor(state.dialogue.speaker);
+    if (portrait.getAttribute('src') !== portraitURL) portrait.src = portraitURL;
     element('notice').hidden = performance.now() > noticeUntil;
     map.draw(player, contacts, navigation, wanted);
   }

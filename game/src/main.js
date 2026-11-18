@@ -33,7 +33,9 @@ const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('game
 renderer.setPixelRatio(Math.min(devicePixelRatio, 1.5));
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 1.08;
+renderer.toneMappingExposure = 1.18;
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 const camera = new THREE.PerspectiveCamera(58, innerWidth / innerHeight, 0.5, 6500);
 const city = buildCity(scene, seed);
 const parked = createParkedVehicles(scene, city, seed);
@@ -222,7 +224,10 @@ function frame(now) {
   hudAge += dt;
   game.radio.update();
   if (hudAge >= 0.08) { hud.update(state); hudAge = 0; }
+  city.updateLighting(player.position);
+  vehicles.forEach(car => { car.headlights.visible = city.timeOfDay !== 'midday'; });
   renderer.render(scene, camera);
+  if (game.staged) renderer.shadowMap.autoUpdate = false;
   game.shots?.afterRender();
   if (!game.staged || !window.__shotReady) requestAnimationFrame(frame);
 }

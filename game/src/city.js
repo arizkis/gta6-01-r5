@@ -9,10 +9,17 @@ export function material(color) {
   if (!materials.has(color)) materials.set(color, new THREE.MeshLambertMaterial({ color, flatShading: true }));
   return materials.get(color);
 }
+export function luminous(color, intensity = 1.2) {
+  const key = `${color}/${intensity}`;
+  if (!materials.has(key)) materials.set(key, new THREE.MeshLambertMaterial({ color, emissive: color, emissiveIntensity: intensity, flatShading: true }));
+  return materials.get(key);
+}
 export function box(parent, x, y, z, w, h, d, color) {
   const mesh = new THREE.Mesh(cube, material(color));
   mesh.position.set(x, y, z);
   mesh.scale.set(w, h, d);
+  mesh.castShadow = h > 3;
+  mesh.receiveShadow = true;
   parent.add(mesh);
   return mesh;
 }
@@ -20,7 +27,7 @@ const vertexMaterial = new THREE.MeshLambertMaterial({ vertexColors: true, flatS
 export function bakeMeshes(group, keep = []) {
   const positions = [], normals = [], colors = [];
   for (const child of [...group.children]) {
-    if (!child.isMesh || keep.includes(child)) continue;
+    if (!child.isMesh || keep.includes(child) || child.material.emissive?.getHex()) continue;
     child.updateMatrix();
     const source = child.geometry.index ? child.geometry.toNonIndexed() : child.geometry.clone();
     source.applyMatrix4(child.matrix);
@@ -39,6 +46,7 @@ export function bakeMeshes(group, keep = []) {
   geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
   geometry.computeBoundingSphere();
   const combined = new THREE.Mesh(geometry, vertexMaterial);
+  combined.castShadow = combined.receiveShadow = true;
   group.add(combined);
   return combined;
 }
@@ -50,6 +58,8 @@ export function label(parent, text, x, y, z, width = 85, color = '#ffe5b2') {
   ctx.fillStyle = '#173e49';
   ctx.fillRect(0, 0, 768, 128);
   ctx.fillStyle = color;
+  ctx.shadowColor = color;
+  ctx.shadowBlur = 16;
   ctx.fillRect(0, 114, 768, 14);
   ctx.font = 'bold 43px sans-serif';
   ctx.textAlign = 'center';
@@ -57,7 +67,7 @@ export function label(parent, text, x, y, z, width = 85, color = '#ffe5b2') {
   ctx.fillText(text, 384, 59, 740);
   const texture = new THREE.CanvasTexture(canvas);
   texture.colorSpace = THREE.SRGBColorSpace;
-  const sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: texture, depthTest: true }));
+  const sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: texture, depthTest: true, toneMapped: false }));
   sprite.name = text;
   sprite.position.set(x, y, z);
   sprite.scale.set(width, width / 6, 1);
@@ -76,10 +86,10 @@ export function label(parent, text, x, y, z, width = 85, color = '#ffe5b2') {
 }
 
 export const TIME_PRESETS = {
-  golden: { sky: '#f8bd91', fog: '#eeb69c', sun: '#ffd09a', power: 2.5, ambient: 2.1, angle: [700, 440, -650], lamps: false },
-  midday: { sky: '#a6d4d8', fog: '#c6dbcf', sun: '#fff3d3', power: 2.7, ambient: 2.3, angle: [200, 1100, 300], lamps: false },
-  dusk: { sky: '#be7d9f', fog: '#cb939f', sun: '#ff9973', power: 1.5, ambient: 1.7, angle: [-800, 220, 500], lamps: true },
-  night: { sky: '#243c60', fog: '#34475f', sun: '#97b8d9', power: 0.65, ambient: 1.1, angle: [300, 600, -500], lamps: true },
+  golden: { sky: '#655b99', fog: '#ed8979', sun: '#ff9c47', power: 2.8, ambient: 1.2, angle: [-120, 105, 1000], lamps: true },
+  midday: { sky: '#258bab', fog: '#9dcbd0', sun: '#ffd49a', power: 2.6, ambient: 1.1, angle: [200, 1100, 300], lamps: false },
+  dusk: { sky: '#353476', fog: '#d9698e', sun: '#ff7742', power: 1.9, ambient: 1.0, angle: [-1000, 80, -120], lamps: true },
+  night: { sky: '#18284e', fog: '#34475f', sun: '#97b8d9', power: 0.65, ambient: 0.7, angle: [300, 600, -500], lamps: true },
 };
 
 export function buildCity(scene, seed = 17) {
@@ -150,10 +160,16 @@ export function buildCity(scene, seed = 17) {
     box(root, x, 5, z, w + 3, 9, d + 3, '#e8c69e');
     for (let y = 18; y < h - 4; y += 18) {
       for (let xx = -w / 2 + 10; xx < w / 2 - 3; xx += 18) {
-        for (const face of [-1, 1]) box(root, x + xx, y, z + face * (d / 2 + 0.2), 8, 9, 0.6, '#315967');
+        for (const face of [-1, 1]) {
+          const window = box(root, x + xx, y, z + face * (d / 2 + 0.2), 8, 9, 0.6, '#164852');
+          if ((Math.round(xx + y) + face + 600) % 5 < 2) window.material = luminous('#ffbd69', 0.8);
+        }
       }
       for (let zz = -d / 2 + 10; zz < d / 2 - 3; zz += 22) {
-        for (const face of [-1, 1]) box(root, x + face * (w / 2 + 0.2), y, z + zz, 0.6, 9, 9, '#315967');
+        for (const face of [-1, 1]) {
+          const window = box(root, x + face * (w / 2 + 0.2), y, z + zz, 0.6, 9, 9, '#164852');
+          if ((Math.round(zz + y) + face + 600) % 5 < 2) window.material = luminous('#ffb864', 0.8);
+        }
       }
     }
     addBlocker(x, z, w + 5, d + 5);
@@ -164,7 +180,7 @@ export function buildCity(scene, seed = 17) {
     const cx = (STREETS.x[ix] + STREETS.x[ix + 1]) / 2;
     const cz = (STREETS.z[iz] + STREETS.z[iz + 1]) / 2;
     for (const ox of [-73, 73]) for (const oz of [-73, 73]) {
-      building(cx + ox + rng.range(-10, 10), cz + oz + rng.range(-10, 10), rng.range(78, 112), rng.range(75, 108), rng.range(30, 150), rng.pick(['#f0cba8', '#e3acb0', '#a5c7bd', '#eac685', '#dfb5bb']));
+      building(cx + ox + rng.range(-10, 10), cz + oz + rng.range(-10, 10), rng.range(78, 112), rng.range(75, 108), rng.range(30, 150), rng.pick(['#e8ac78', '#dc728f', '#5eaa9f', '#efa749', '#c57c9e']));
     }
   }
   // Edge blocks keep the skyline occupied without obstructing the beach.
@@ -299,23 +315,58 @@ export function buildCity(scene, seed = 17) {
     addBlocker(x, z - 68, 3, 3, 'lamp');
     if (rng() > 0.8) bench(x + 32, z - 70);
   }
-  const skyLight = new THREE.HemisphereLight('#fff1cf', '#7b8588', 2);
+  const skyLight = new THREE.HemisphereLight('#ffc0ce', '#137e83', 1);
   const sun = new THREE.DirectionalLight('#ffcca1', 2);
-  scene.add(skyLight, sun);
+  sun.castShadow = true;
+  sun.shadow.mapSize.set(2048, 2048);
+  Object.assign(sun.shadow.camera, { left: -280, right: 280, top: 280, bottom: -280, near: 1, far: 2200 });
+  sun.shadow.bias = -0.00025;
+  sun.shadow.normalBias = 0.5;
+  sun.shadow.radius = 3;
+  const sky = new THREE.Mesh(new THREE.SphereGeometry(5000, 32, 16), new THREE.ShaderMaterial({
+    side: THREE.BackSide, depthWrite: false,
+    uniforms: { zenith: { value: new THREE.Color() }, horizon: { value: new THREE.Color() }, sunDirection: { value: new THREE.Vector3() }, disc: { value: new THREE.Color('#ffe3a0') } },
+    vertexShader: 'varying vec3 direction; void main() { direction = position; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }',
+    fragmentShader: `varying vec3 direction;
+      uniform vec3 zenith; uniform vec3 horizon; uniform vec3 sunDirection; uniform vec3 disc;
+      void main() {
+        vec3 ray = normalize(direction);
+        float elevation = max(ray.y, 0.0);
+        vec3 color = mix(horizon, zenith, smoothstep(0.0, 0.65, elevation));
+        float alignment = dot(ray, sunDirection);
+        color += disc * pow(max(alignment, 0.0), 90.0) * 0.24;
+        color = mix(color, disc * 2.5, smoothstep(0.9984, 0.9988, alignment));
+        gl_FragColor = vec4(color, 1.0);
+        #include <tonemapping_fragment>
+        #include <colorspace_fragment>
+      }`,
+  }));
+  sky.frustumCulled = false;
+  sky.onBeforeRender = (renderer, scene, camera) => { sky.position.copy(camera.position); sky.updateMatrixWorld(); };
+  const sunOffset = new THREE.Vector3();
+  scene.add(skyLight, sun, sun.target, sky);
+  function updateLighting(position) {
+    sun.target.position.set(position.x, 0, position.z);
+    sun.position.copy(sun.target.position).add(sunOffset);
+  }
   function setTimeOfDay(name = 'golden') {
     const preset = TIME_PRESETS[name] ?? TIME_PRESETS.golden;
     scene.background = new THREE.Color(preset.sky);
-    scene.fog = new THREE.Fog(preset.fog, 700, 2500);
+    scene.fog = new THREE.Fog(preset.fog, 420, 2300);
     sun.color.set(preset.sun);
     sun.intensity = preset.power;
-    sun.position.set(...preset.angle);
+    sunOffset.set(...preset.angle);
+    sky.material.uniforms.zenith.value.set(preset.sky);
+    sky.material.uniforms.horizon.value.set(preset.fog);
+    sky.material.uniforms.sunDirection.value.copy(sunOffset).normalize();
+    updateLighting({ x: 1400, z: 1100 });
     skyLight.intensity = preset.ambient;
     lamps.forEach(lamp => { lamp.visible = preset.lamps; });
     city.timeOfDay = TIME_PRESETS[name] ? name : 'golden';
   }
   const city = {
     get swimAllowed() { return swimming; }, set swimAllowed(value) { swimming = value; },
-    root, blockers, shadeZones, lamps, places: PLACES, districtAt, blocked, move, withinLand, addBlocker, setTimeOfDay,
+    root, blockers, shadeZones, lamps, places: PLACES, districtAt, blocked, move, withinLand, addBlocker, setTimeOfDay, updateLighting,
     isShaded: (x, z) => shadeZones.some(s => s.radius ? Math.hypot(x - s.x, z - s.z) < s.radius : Math.abs(x - s.x) < s.halfX && Math.abs(z - s.z) < s.halfZ),
   };
   // Batch the static geometry by material and shape; signs and lamps remain separate.
@@ -329,6 +380,8 @@ export function buildCity(scene, seed = 17) {
   });
   for (const meshes of batches.values()) {
     const instanced = new THREE.InstancedMesh(meshes[0].geometry, meshes[0].material, meshes.length);
+    instanced.castShadow = meshes.some(mesh => mesh.castShadow);
+    instanced.receiveShadow = true;
     meshes.forEach((mesh, index) => { instanced.setMatrixAt(index, mesh.matrixWorld); mesh.removeFromParent(); });
     instanced.computeBoundingSphere();
     root.add(instanced);

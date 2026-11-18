@@ -1,6 +1,7 @@
 // Street patrols, witnessed heat, sight-based searching, arrest and air support.
 import * as THREE from '../vendor/three.min.js';
-import { box, label, material } from './city.js';
+import { box, label, material, luminous } from './city.js';
+import { lightGlow } from './effects.js';
 import { createVehicle, MODELS, syncVehicleBlocker } from './vehicles.js';
 import { STREETS, PLACES } from './config.js';
 import { distance, streetRoute } from './navigation.js';
@@ -23,8 +24,8 @@ export function createPolice(game) {
   helicopter.add(rotor);
   for (const side of [-1, 1]) box(helicopter, side * 8, -8, 0, 2, 2, 29, '#344d57');
   scene.add(helicopter);
-  const beam = new THREE.Mesh(new THREE.ConeGeometry(32, 1, 24, 1, true), new THREE.MeshBasicMaterial({ color: '#fff4bf', transparent: true, opacity: 0.13, side: THREE.DoubleSide, depthWrite: false }));
-  const spot = new THREE.Mesh(new THREE.CircleGeometry(31, 40), new THREE.MeshBasicMaterial({ color: '#fff1b8', transparent: true, opacity: 0.25, depthWrite: false }));
+  const beam = new THREE.Mesh(new THREE.ConeGeometry(32, 1, 24, 1, true), new THREE.MeshBasicMaterial({ color: '#fff4bf', transparent: true, opacity: 0.045, side: THREE.DoubleSide, depthWrite: false, blending: THREE.AdditiveBlending }));
+  const spot = new THREE.Mesh(new THREE.CircleGeometry(31, 40), new THREE.MeshBasicMaterial({ color: '#fff1b8', transparent: true, opacity: 0.32, depthWrite: false, blending: THREE.AdditiveBlending }));
   spot.rotation.x = -Math.PI / 2;
   const ring = new THREE.Mesh(new THREE.RingGeometry(30, 32, 40), new THREE.MeshBasicMaterial({ color: '#fff2c6', transparent: true, opacity: 0.55, side: THREE.DoubleSide, depthWrite: false }));
   ring.rotation.x = -Math.PI / 2;
@@ -65,8 +66,10 @@ export function createPolice(game) {
     for (const side of [-1, 1]) box(car.mesh, side * 6.1, 6, 0, 0.5, 3, 20, '#247f87');
     box(car.mesh, 0, 13, -1, 12, 1.6, 4, '#36545c');
     car.flash = [-1, 1].map(side => {
-      const light = new THREE.Mesh(new THREE.BoxGeometry(5, 2.5, 4), new THREE.MeshBasicMaterial({ color: side < 0 ? '#ff5275' : '#69c8ff' }));
-      light.position.set(side * 3, 15, -1); car.mesh.add(light); return light;
+      const color = side < 0 ? '#ff315e' : '#3a9fff';
+      const light = new THREE.Mesh(new THREE.BoxGeometry(5, 2.5, 4), luminous(color, 3));
+      light.position.set(side * 3, 15, -1);
+      light.add(lightGlow(color, 15)); car.mesh.add(light); return light;
     });
     label(car.mesh, 'SUNSPUR PD', 0, 18, -8, 27, '#a0e5da');
     car.blocker = city.addBlocker(x, z, 12, 23, 'police', car);

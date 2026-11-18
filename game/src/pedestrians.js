@@ -6,7 +6,7 @@ import { createRandom } from './random.js';
 
 const torsoGeometry = new THREE.CylinderGeometry(2.5, 2.1, 5.2, 6);
 const headGeometry = new THREE.SphereGeometry(2.1, 7, 5);
-export function createFigure(color = '#f4a872', skin = '#c99878') {
+export function createFigure(color = '#f4a872', skin = '#c99878', identity = '') {
   const mesh = new THREE.Group();
   const torso = new THREE.Mesh(torsoGeometry, material(color));
   torso.position.y = 7;
@@ -18,6 +18,18 @@ export function createFigure(color = '#f4a872', skin = '#c99878') {
   const arms = [-3, 3].map(x => box(mesh, x, 6.5, 0, 1.2, 5.5, 1.4, color));
   box(mesh, 0, 12.7, 0, 4, 1.2, 3.7, '#4e4547');
   box(mesh, 0, 10.8, 1.8, 2.8, 0.7, 0.6, '#2e4b55');
+  if (identity === 'juno') box(mesh, 0, 11, -2, 2.2, 4, 1.7, '#4e4547');
+  if (identity === 'tavi') {
+    box(mesh, 0, 13.1, 0, 4.4, 1.8, 4, '#225f65');
+    box(mesh, 0, 12.6, 1, 5, 0.5, 4, '#f8c46c');
+  }
+  if (identity === 'niko') box(mesh, 2, 10, 0, 0.5, 1, 0.5, '#ffe19c');
+  if (identity === 'paz') {
+    const brim = new THREE.Mesh(new THREE.CylinderGeometry(3.4, 3.4, 0.5, 8), material('#f7c98a'));
+    brim.position.y = 12.9; mesh.add(brim);
+    box(mesh, 0, 13.6, 0, 3.6, 1.4, 3.5, '#f7c98a');
+    box(mesh, 2.1, 10, 0, 0.6, 1.2, 0.6, '#ffdd8f');
+  }
   bakeMeshes(mesh, [torso, ...legs, ...arms]);
   return { mesh, legs, arms, torso };
 }
@@ -43,7 +55,7 @@ export function createPedestrians(scene, city, seed = 17) {
     people.push({ id: `ped-${i}`, ...figure, position: figure.mesh.position, route, index: (index + 1) % 4, phase: rng() * 6, state: { mode: 'stroll', speed: rng.range(3, 5), panic: 0, target: null }, stalled: 0 });
   }
   const contacts = CONTACTS.map(contact => {
-    const figure = createFigure(contact.color);
+    const figure = createFigure(contact.color, '#c99878', contact.id);
     figure.mesh.position.set(contact.x, 1.5, contact.z);
     scene.add(figure.mesh);
     label(figure.mesh, `${contact.name.toUpperCase()} / ${contact.faction}`, 0, 26, 0, 100, contact.color);
