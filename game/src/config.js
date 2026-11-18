@@ -1,61 +1,28 @@
-// Every tuning number and colour in one place. The playfield is a fixed 1280x720 logical area;
-// the renderer scales it to the window, so no rule below depends on the screen size.
-
-export const FIELD = { width: 1280, height: 720, groundY: 664 };
-
-/** The simulation's fixed step, in seconds: 60 updates a second whatever the display's rate. */
-export const STEP = 1 / 60;
-
-export const PLAYER = {
-  width: 72,
-  height: 24,
-  speed: 560,
-  invulnerable: 1.5,
+// Scope: city dimensions, street grid, districts, palette and shared tuning.
+export const WORLD = { width: 2860, depth: 2360, landX: 2720, landZ: 2200 };
+export const STREETS = { x: [240, 680, 1120, 1560, 2000, 2440], z: [280, 720, 1160, 1600, 2040], width: 112, sidewalk: 22 };
+export const DISTRICTS = [
+  { name: 'SUNSPUR STRAND', color: '#efaa70', test: (x, z) => x > 2250 || z > 2060 },
+  { name: 'TIDEWORKS', color: '#70b9b5', test: (x, z) => x >= 1500 && z >= 1200 },
+  { name: 'OLD SALT QUARTER', color: '#db8ea7', test: (x, z) => x < 1500 && z >= 1100 },
+  { name: 'MARIGOLD MARKET', color: '#efbd65', test: (x, z) => x >= 1000 },
+  { name: 'CITRUS COMMONS', color: '#a6bd85', test: () => true },
+];
+export const PALETTE = { cream: '#ffe5b2', pink: '#ef8ca6', orange: '#f7a568', teal: '#358e91', road: '#526c73', pavement: '#ddcba5', sea: '#3ca9b3', grass: '#83a98b', ink: '#173e49' };
+export const SPEEDS = { walk: 7, sprint: 11, carMax: 150, reverse: 38, acceleration: 42, braking: 80, traffic: 48 };
+export const SAVE_KEY = 'sunspur.cooler-caper.v1';
+export const SPAWN = { x: 472, z: 648, heading: 0 };
+export const CONTACTS = [
+  { id: 'tavi', name: 'Tavi Moss', faction: 'MECHANIC', x: 1838, z: 940, color: '#75d2be' },
+  { id: 'niko', name: 'Niko Vale', faction: 'FIXER', x: 1390, z: 628, color: '#f6bf65' },
+  { id: 'paz', name: 'Paz Sol', faction: 'FENCE', x: 2150, z: 2170, color: '#e99fba' },
+];
+export const PLACES = {
+  park: { x: 460, z: 490, name: 'CITRUS GREEN' },
+  festival: { x: 1780, z: 950, name: 'LANTERN FEST' },
+  impound: { x: 910, z: 1810, name: 'SUNSPUR IMPOUND' },
+  workshop: { x: 1770, z: 1380, name: "TAVI'S WORKSHOP" },
+  safehouse: { x: 430, z: 615, name: "JUNO'S SAFEHOUSE" },
+  market: { x: 1370, z: 570, name: 'MARIGOLD MARKET' },
+  pier: { x: 2150, z: 2300, name: 'TIN CUP PIER' },
 };
-
-export const LIVES = 3;
-
-export const BLOCK = {
-  minWidth: 40,
-  maxWidth: 110,
-  height: 36,
-  speed: 240,
-  speedPerLevel: 30,
-  speedJitter: 90,
-  interval: 0.55,
-  intervalScale: 0.88,
-  minInterval: 0.14,
-  dodgePoints: 1,
-};
-
-export const COIN = {
-  size: 24,
-  speed: 190,
-  speedPerLevel: 14,
-  interval: 1.4,
-  intervalJitter: 0.8,
-  points: 10,
-};
-
-/** Seconds of play per level, and the last level: speeds and spawn rates stop growing there. */
-export const LEVEL = { seconds: 12, max: 12 };
-
-/** How many falling things can exist at once; the pool is allocated once, at boot. */
-export const POOL_SIZE = 64;
-
-export const PALETTE = {
-  backdrop: '#11141b',
-  sky: '#1b1f2a',
-  ground: '#2a3040',
-  player: '#4fc3f7',
-  block: '#e5534b',
-  coin: '#f2c94c',
-  panel: '#252b38',
-  text: '#eef1f5',
-  muted: '#8b93a3',
-};
-
-export const FONT = 'system-ui, -apple-system, "Segoe UI", sans-serif';
-
-/** Where the best score is kept between visits (this browser only). */
-export const BEST_KEY = 'block-dodger.best';

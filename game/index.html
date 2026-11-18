@@ -1,19 +1,39 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Block Dodger</title>
-<style>
-  html, body { margin: 0; height: 100%; overflow: hidden; background: #11141b; }
-  #game { position: fixed; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; }
-  /* Read aloud, never shown: the status line screen readers announce. */
-  #status { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
-</style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#173e49">
+  <title>Sunspur: The Cooler Caper</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="./style.css">
 </head>
 <body>
-<canvas id="game" aria-label="Block Dodger: move the paddle left and right to dodge falling blocks and catch coins"></canvas>
-<p id="status" role="status" aria-live="polite"></p>
-<script type="module" src="./src/main.js"></script>
+  <canvas id="game" aria-label="Sunspur Bay, a low-poly coastal city. Walk with WASD and enter a nearby car with E."></canvas>
+  <main id="hud" hidden aria-label="Game instruments">
+    <section class="panel brand"><span class="eyebrow">A LITTLE HEAT. A LOT TO LOSE.</span><strong>SUNSPUR BAY<span class="brand-dot">●</span></strong><span id="district">CITRUS COMMONS</span></section>
+    <section class="panel mission" aria-label="Mission"><span class="eyebrow" id="mission-label">THE GETAWAY JOURNAL</span><h2 id="mission-name">NO ACTIVE JOB</h2><p id="mission-objective">Three contacts. One very long summer.</p><div id="stage-pips" aria-label="Mission stages"></div><p class="next-line" id="mission-next">NEXT / FIND A CONTACT OR OPEN THE JOB BOARD</p></section>
+    <section class="panel wanted" aria-label="Wanted level and money"><div class="wanted-heading"><span class="eyebrow">HEAT INDEX</span><span id="time-preset">GOLDEN HOUR</span></div><div id="wanted-stars" aria-label="Wanted level 0 of 5">☆ ☆ ☆ ☆ ☆</div><p id="dispatch">DISPATCH / ALL QUIET</p><div class="cash-clock"><strong id="cash">$140</strong><time id="clock">17:10</time></div></section>
+    <section class="panel police" aria-label="Police response"><h2>POLICE RESPONSE <span id="unit-count">00</span></h2><div id="police-units">NO UNITS DISPATCHED</div></section>
+    <section class="panel cooler" id="cooler-panel" hidden aria-label="Cooler telemetry"><h2>COOLER TELEMETRY</h2><dl><div><dt>COOLER</dt><dd id="cooler-temp">0°C</dd></div><div><dt>INTEGRITY</dt><dd id="cooler-integrity">100%</dd></div><div><dt>PAYOUT</dt><dd id="cooler-payout">$280</dd></div></dl></section>
+    <section class="panel weapons" aria-label="Weapons"><div id="weapon-options"><span data-weapon="0" class="selected">1 FISTS</span><span data-weapon="1">2 WRENCH</span><span data-weapon="2">3 WATER PISTOL</span></div><div class="tank-row">TANK <meter id="tank" min="0" max="100" value="100">100%</meter></div></section>
+    <section class="panel vitals" aria-label="Juno's status"><div class="meter-row"><label for="health">HEALTH</label><meter id="health" min="0" max="100" value="100"></meter><b id="health-value">100</b></div><div class="meter-row"><label for="armour">ARMOUR</label><meter id="armour" min="0" max="100" value="0"></meter><b id="armour-value">0</b></div><div class="respect-title">NEIGHBORHOOD RESPECT</div><div id="respect-meters"><label>FIXER <small>NIKO</small><meter id="respect-fixer" min="0" max="100" value="0"></meter></label><label>MECHANIC <small>TAVI</small><meter id="respect-mechanic" min="0" max="100" value="0"></meter></label><label>FENCE <small>PAZ</small><meter id="respect-fence" min="0" max="100" value="0"></meter></label></div></section>
+    <section class="map-panel" aria-label="Minimap"><div class="map-frame"><canvas id="minimap" width="400" height="400"></canvas><span class="map-north">N</span></div><div id="map-district">CITRUS COMMONS</div></section>
+    <div id="notice" class="panel notice" role="status" hidden></div>
+    <div id="interaction" class="panel interaction" hidden></div>
+    <section class="panel vehicle" id="vehicle-panel" hidden aria-label="Vehicle"><span class="eyebrow">BEHIND THE WHEEL</span><h2 id="vehicle-name">SUNSPUR SOLACE</h2><div class="vehicle-numbers"><span><strong id="speed">0</strong> KM/H</span><span>CONDITION <b id="condition">100%</b></span></div><p id="radio-station">RADIO / OFF</p></section>
+    <section id="dialogue" class="panel dialogue" hidden aria-label="Dialogue"><div id="portrait" aria-hidden="true">JR</div><div><strong id="speaker"></strong><p id="dialogue-line"></p></div></section>
+    <footer class="controls-strip"><span><b>WASD / ↑↓←→</b> DRIVE / WALK</span><span><b>SHIFT</b> SPRINT</span><span><b>E</b> ENTER / TALK</span><span><b>F</b> RADIO</span><span><b>X</b> SPIKE STRIP</span><span><b>1 / 2 / 3</b> WEAPONS</span><span><b>ESC</b> PAUSE</span></footer>
+  </main>
+  <section id="title-menu" class="menu title-menu" aria-label="Start menu">
+    <div class="edition-tag">SUNSPUR STORIES <span>VOL. 01 / SUMMER '86</span></div>
+    <div class="title-copy"><p class="title-kicker">WELCOME TO THE SUNNY SIDE OF TROUBLE</p><h1>SUNSPUR<br><span>BAY</span><i>↗</i></h1><h2>The Cooler Caper</h2><p class="story-copy">Juno Reed has a borrowed ride, three contacts,<br>and a cooler nobody wants to see opened.</p><div class="menu-actions"><button id="start-button" class="primary">START <span>↗</span></button><button id="title-board-button">JOB BOARD</button></div><p class="enter-hint">PRESS ENTER TO HIT THE STREETS</p></div>
+    <div class="postcard-stamp">17<span>SUNSPUR<br>BAY, COAST</span></div>
+    <footer class="menu-footer"><span>WASD MOVE · SHIFT SPRINT · E ENTER / TALK · ESC PAUSE</span><span>KEEP IT COOL. KEEP IT MOVING.</span></footer>
+  </section>
+  <section id="pause-menu" class="menu centered-menu" hidden aria-label="Pause menu"><div class="menu-sheet"><p class="eyebrow">TAKE A BREATHER, JUNO.</p><h2>ON A BREAK</h2><p>The bay can wait.</p><button id="resume-button" class="primary">RESUME</button><button id="restart-button">RESTART DAY</button><button id="pause-board-button">JOB BOARD</button><p class="small">ESC OR P TO RESUME</p></div></section>
+  <section id="board-menu" class="menu board-menu" hidden aria-label="Job board"><div class="board-sheet"><header><div><p class="eyebrow">GOOD PEOPLE. QUESTIONABLE ERRANDS.</p><h2>THE JOB BOARD</h2></div><button id="board-back-button">BACK ↗</button></header><p class="board-caption">Six favors around the bay. Earn your way into the next one.</p><div id="job-list"></div></div></section>
+  <p id="status" class="sr-only" role="status" aria-live="polite">Loading Sunspur Bay.</p>
+  <script type="module" src="./src/main.js"></script>
 </body>
 </html>

@@ -1,0 +1,9 @@
+{
+  "name": "sunspur-cooler-caper",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "serve": "node serve.ts",
+    "package": "node main.ts"
+  }
+}
