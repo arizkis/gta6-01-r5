@@ -6,7 +6,7 @@
 
 Juno Reed is a getaway driver with $140, three contacts and a suspiciously important cooler. Sunspur Bay is an original low-poly coastal city in pink, orange, teal and cream. Explore five districts on foot or behind the wheel, with a third-person chase camera, moving traffic, strolling neighbors and a waterfront pier. All game art is geometry or canvas lettering generated locally. The only vendored runtime dependency is Three.js r160.
 
-The six favors now run as a sequential job chain. Patrols pursue witnessed crimes, try PITs and rams, form roadblocks at three stars and box in cars with helicopter support at four. Break their sight behind buildings; shade also hides you from the helicopter. Heat drains, followed by stars. Staying within arrest range for four seconds brings a fine and a return to Juno’s apartment. The HUD reports the nearest three units, their tactics, sight status and heat; the map draws their vision cones and search area.
+The six favors run as a sequential job chain. Patrols pursue witnessed crimes, try PITs and rams, form roadblocks at three stars and box in cars with helicopter support at four. Break their sight behind buildings; shade also hides you from the helicopter. Heat drains, followed by stars. Staying within arrest range for four seconds brings a fine and a return to Juno’s apartment. The HUD reports the nearest four units, their tactics, sight status and heat; the map draws their vision cones and search area.
 
 Coolers warm in sunlight, cool in shade and after sunset, and lose integrity in hard impacts. Integrity scales the payout; pristine cargo earns the full amount and a COLD BONUS acknowledgement. Juno automatically carries the visible cooler when leaving a vehicle and walks more slowly. Re-entering secures it again. Vapour follows both the box and the van. The final job carries a glowing lantern instead.
 
@@ -68,7 +68,9 @@ Each feature is a plain ES module under `game/src/`. `config.js` defines dimensi
 
 ## Staging and screenshot procedure
 
-The four routes in `shots.json` arrange repeatable scenes with the normal actors and instruments. Cover uses golden light, a carried cooler, smoking van, converging patrols and a searchlight. Market uses midday light and Niko’s dialogue. Garage uses warm light and the repair/progression panel. Causeway uses dusk, a fast freezer van, four units and air support. Each exposes `window.__shotReady` only after two rendered frames and visible HUD elements. Scene positions remain fixed so the final capture is repeatable; lights, vapour, smoke and the instrument updates continue.
+The committed driver is `game/src/shots.js`; `shots.json` pairs its four routes with the entry filenames. These routes use the normal city, actors, cargo, effects and HUD. Cover places Juno on foot under a searchlight, carrying the cooler beside her smoking van at golden hour. Market places her beside Niko, the objective diamond and fruit crates at midday; Niko speaks a line from the actual job opening. Garage opens Tavi’s repair and upgrade panel with three completed jobs and a checkpoint record. Causeway arranges a fast freezer van, two patrols alongside, a braking unit ahead and another behind, with dusk light and air support.
+
+Each scene advances exactly 90 simulation ticks in batches of six per rendered frame, then stops rendering. This fixes the clock, police lights, rotor, smoke, skid marks and cooler readings independently of computer speed. `window.__shotFrame === 90` identifies that state. `window.__shotReady` becomes true after the settled frame is rendered and all required HUD rectangles fit inside the viewport. Staging neither loads nor saves the player’s day. Capture at 1280×960 with device scale 1; the taller frame gives every solid HUD panel room without overlap.
 
 | File under screenshots/ | Local route |
 | --- | --- |
@@ -77,7 +79,28 @@ The four routes in `shots.json` arrange repeatable scenes with the normal actors
 | 03-garage-upgrades.jpg | /?shot=garage&seed=17 |
 | 04-causeway-chase.jpg | /?shot=causeway&seed=17 |
 
-The final screenshot and kit-check pass remains a separate turn. Open each route in Chrome and wait for `window.__shotReady === true`. Use a viewport with a 1280-pixel long side. Save JPEGs into `screenshots/` using the mapped names, keep each within 256 KiB and remove the starter images in that pass. Gameplay work does not replace or submit those images.
+Start `node serve.ts` in this repository. In the Playwright MCP browser, set the viewport to 1280×960 and capture the four routes in table order. The following function can be passed to `browser_run_code_unsafe`; set `repo` to this checkout’s absolute path if it moves. Its pairs match `shots.json` and save one unaltered browser render per route directly as a JPEG. Quality 86 is the capture setting; inspect the saved files and reduce JPEG quality with a local encoder only if a file exceeds 262144 bytes. Do not crop, combine or paint over a capture.
+
+```js
+async (page) => {
+  const repo = '/home/hatch/workspace/makefun/projects/gta6-01/entry-r6';
+  const shots = [
+    ['01-bailout-cover.jpg', 'cover'], ['02-market-mission.jpg', 'market'],
+    ['03-garage-upgrades.jpg', 'garage'], ['04-causeway-chase.jpg', 'causeway'],
+  ];
+  await page.setViewportSize({ width: 1280, height: 960 });
+  for (const [name, route] of shots) {
+    await page.goto(`http://127.0.0.1:8080/?shot=${route}&seed=17`);
+    await page.waitForFunction(() => window.__shotReady === true, null, { timeout: 45000 });
+    await page.screenshot({
+      path: `${repo}/screenshots/${name}`,
+      type: 'jpeg', quality: 86, scale: 'css', timeout: 45000,
+    });
+  }
+}
+```
+
+List the four JPEGs with exact byte sizes and dimensions, and open each saved image to verify its scene and full HUD. `screenshots/` must contain only the four mapped names: remove `1-start.jpg`, `2-play.jpg` and `3-end.jpg` after replacing them. Check the console for errors. For a separate real play-test, navigate to `/?seed=17`, start the day and exercise walking, vehicle entry, driving, radio, the board and pause controls. Network checks apply after the initial local asset load; there should be no gameplay requests.
 
 ## Package
 
@@ -87,7 +110,7 @@ From the repository root:
 MAKEFUN_OUTPUT_DIR=out node main.ts
 ```
 
-This copies the local game and current screenshots, and writes `out/dossier.json` using the unchanged kit packager. To verify reproducibility, hash every output file, run the command again, and compare all hashes. Packaging creates local files; it does not submit an entry.
+This refreshes `out/game/` and `out/screenshots/` from the current source, removing stale files from earlier builds, and writes `out/dossier.json` using the unchanged kit packager. To verify reproducibility, hash every output file, run the command again, and compare all hashes. Packaging creates local files; it does not submit an entry.
 
 `node tests/gameplay.mjs` exercises the six mission state paths, cargo ownership, payout scaling, police escape/arrest, shop purchases, upgrades, a spike hit, saves and scene initialization with a small DOM stand-in. It uses the real simulation modules and requires no installed packages. It complements the browser play-test; it cannot verify rendering, sound, HUD visibility or actual keyboard play.
 

@@ -50,7 +50,8 @@ export function createCoolerCargo(game) {
     mistAge += dt;
     if (mistAge > 0.08 && (player.carrying || Math.abs(car?.speed ?? 0) > 2)) {
       mistAge = 0;
-      effects.puff(car ? { x: p.x - Math.sin(h) * 19, y: 8, z: p.z - Math.cos(h) * 19 } : prop.position, '#b4eff5', 1.5, 1.6);
+      effects.puff(car ? { x: p.x - Math.sin(h) * 19, y: 8, z: p.z - Math.cos(h) * 19 } : prop.position,
+        '#8de4f5', 2.6, 2.2, { x: -Math.sin(h) * 7, y: 2.5, z: -Math.cos(h) * 7 });
     }
   }
   return { start, collision, update, prop, lantern, crates };

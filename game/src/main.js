@@ -161,6 +161,7 @@ document.addEventListener('visibilitychange', () => { if (document.hidden && sta
 window.addEventListener('resize', () => {
   renderer.setSize(innerWidth, innerHeight);
   camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix();
+  if (game.staged && window.__shotReady) requestAnimationFrame(frame);
 });
 renderer.setSize(innerWidth, innerHeight);
 
@@ -187,10 +188,10 @@ function step(dt) {
       crowd.scare(car.position, 110);
       if (['Space', 'KeyA', 'KeyD', 'KeyS', 'ArrowLeft', 'ArrowRight', 'ArrowDown'].some(key => keys.has(key)) || game.shot === 'causeway') {
         game.effects.skid(car);
-        for (const side of [-1, 1]) game.effects.puff({ x: car.position.x - Math.sin(car.heading) * 10 + Math.cos(car.heading) * side * 7, y: 3, z: car.position.z - Math.cos(car.heading) * 10 - Math.sin(car.heading) * side * 7 }, '#9caeac', 2, 1.8);
+        for (const side of [-1, 1]) game.effects.puff({ x: car.position.x - Math.sin(car.heading) * 10 + Math.cos(car.heading) * side * 7, y: 3, z: car.position.z - Math.cos(car.heading) * 10 - Math.sin(car.heading) * side * 7 }, '#9caeac', 3.6, 2.4);
       }
     }
-    vehicles.filter(v => v.condition < 40 && v.position.distanceTo(player.position) < 200).forEach(v => game.effects.puff({ x: v.position.x, y: 15, z: v.position.z + 8 }, '#6b7d82', 3, 2.4));
+    vehicles.filter(v => v.condition < 40 && v.position.distanceTo(player.position) < 200).forEach(v => game.effects.puff({ x: v.position.x, y: 15, z: v.position.z + 8 }, '#6b7d82', 4.5, 3.2, { x: -2, y: 7, z: 1 }));
     game.police.units.filter(u => u.distance < 150 && state.wanted.level).forEach(u => crowd.scare(u.position, 100));
   }
   systems.forEach(system => system.update?.(dt, state));
@@ -202,7 +203,10 @@ let last = performance.now(), accumulator = 0, hudAge = 0;
 function frame(now) {
   const dt = Math.min((now - last) / 1000, 0.1);
   last = now;
-  if (state.screen === 'play') {
+  if (game.staged) {
+    // Staging advances exactly ninety simulation ticks, regardless of browser speed.
+    for (let i = 0; i < 6 && game.shots.advance(); i++) step(1 / 60);
+  } else if (state.screen === 'play') {
     accumulator += dt;
     while (accumulator >= 1 / 60) { step(1 / 60); accumulator -= 1 / 60; }
     if (!game.staged) chase.update(player, dt);
@@ -220,7 +224,7 @@ function frame(now) {
   if (hudAge >= 0.08) { hud.update(state); hudAge = 0; }
   renderer.render(scene, camera);
   game.shots?.afterRender();
-  requestAnimationFrame(frame);
+  if (!game.staged || !window.__shotReady) requestAnimationFrame(frame);
 }
 
 // A shared integration surface for the next gameplay modules and browser inspection.

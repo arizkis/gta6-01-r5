@@ -58,8 +58,19 @@ export function label(parent, text, x, y, z, width = 85, color = '#ffe5b2') {
   const texture = new THREE.CanvasTexture(canvas);
   texture.colorSpace = THREE.SRGBColorSpace;
   const sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: texture, depthTest: true }));
+  sprite.name = text;
   sprite.position.set(x, y, z);
   sprite.scale.set(width, width / 6, 1);
+  // Nearby place signs stay readable without covering the people or road below.
+  const worldPosition = new THREE.Vector3();
+  sprite.onBeforeRender = (renderer, scene, camera) => {
+    sprite.getWorldPosition(worldPosition).applyMatrix4(camera.matrixWorldInverse);
+    const depth = Math.max(1, -worldPosition.z);
+    const pixelCap = width < 50 ? 180 : 320;
+    const visibleWidth = Math.min(width, depth * 2 * Math.tan(camera.fov * Math.PI / 360) * pixelCap / renderer.domElement.clientHeight);
+    sprite.scale.set(visibleWidth, visibleWidth / 6, 1);
+    sprite.updateMatrixWorld();
+  };
   parent.add(sprite);
   return sprite;
 }
@@ -259,7 +270,7 @@ export function buildCity(scene, seed = 17) {
     box(root, 1970, 4, z, 530, 2, 3, '#edcba0');
     for (let x = 1710; x < 2235; x += 45) box(root, x, 6, z, 2, 9, 2, '#eac297');
   }
-  label(root, 'COASTAL CAUSEWAY', 1980, 30, 2110, 115);
+  label(root, 'COASTAL CAUSEWAY', 1900, 30, 1970, 90);
   const buoy = new THREE.Mesh(new THREE.ConeGeometry(7, 14, 8), material(PALETTE.orange));
   buoy.position.set(2750, 6, 1840); root.add(buoy);
   label(root, 'SWIMMER BUOY', 2750, 25, 1840, 72);

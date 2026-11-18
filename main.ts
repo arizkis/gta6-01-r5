@@ -1,12 +1,13 @@
 // Sunspur: The Cooler Caper packages a local 3D coastal city and its browser modules.
 // Geometry, signs and interface art are authored in the game; Three.js is vendored locally.
 // This entrypoint copies the playable files and screenshots into a repeatable dossier.
+// Entry photographs come from the seeded scene driver in game/src/shots.js.
 //
 // Serve it locally with `node serve.ts`, then open http://localhost:8080.
 // Outside the grader's container, MAKEFUN_OUTPUT_DIR stands in for /output:
 //   mkdir -p out && MAKEFUN_OUTPUT_DIR=out node main.ts
 
-import { cpSync, existsSync, mkdirSync, writeFileSync } from 'node:fs';
+import { cpSync, existsSync, mkdirSync, rmSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { buildDossier } from './vendor/makefun-game.ts';
@@ -15,6 +16,8 @@ const here = fileURLToPath(new URL('.', import.meta.url));
 const out = process.env.MAKEFUN_OUTPUT_DIR ?? '/output';
 
 mkdirSync(out, { recursive: true });
+// Refresh the generated trees so removed source files cannot survive a later build.
+for (const directory of ['game', 'screenshots']) rmSync(join(out, directory), { recursive: true, force: true });
 cpSync(join(here, 'game'), join(out, 'game'), { recursive: true });
 mkdirSync(join(out, 'screenshots'), { recursive: true });
 if (existsSync(join(here, 'screenshots'))) cpSync(join(here, 'screenshots'), join(out, 'screenshots'), { recursive: true });

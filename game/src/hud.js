@@ -40,7 +40,7 @@ export function createHUD(city) {
     const minutes = Math.floor(state.clockMinutes) % 1440;
     element('clock').textContent = `${String(Math.floor(minutes / 60)).padStart(2, '0')}:${String(minutes % 60).padStart(2, '0')}`;
     element('time-preset').textContent = city.timeOfDay === 'golden' ? 'GOLDEN HOUR' : city.timeOfDay.toUpperCase();
-    const units = (wanted.units ?? []).slice(0, 3);
+    const units = (wanted.units ?? []).slice(0, 4);
     element('unit-count').textContent = String((wanted.units ?? []).length).padStart(2, '0');
     element('police-units').replaceChildren();
     if (!units.length) element('police-units').textContent = 'NO UNITS DISPATCHED';
@@ -66,7 +66,7 @@ export function createHUD(city) {
     element('vehicle-panel').hidden = !vehicle;
     if (vehicle) {
       element('vehicle-name').textContent = vehicle.name;
-      element('vehicle-context').textContent = player.vehicle ? 'BEHIND THE WHEEL' : `${Math.round(position.distanceTo(vehicle.position))}m TO YOUR RIDE`;
+      element('vehicle-context').textContent = player.vehicle ? 'BEHIND THE WHEEL' : `DISTANCE / ${Math.round(position.distanceTo(vehicle.position))}m`;
       element('speed').textContent = player.vehicle ? Math.round(Math.abs(vehicle.speed) * 1.8) : '0';
       element('condition').textContent = `${Math.round(vehicle.condition)}%`;
       element('spike-charges').textContent = `SPIKES / ${p.upgrades.spikes ? `${p.spikeCharges}/3 · X TO DROP` : 'RACK NOT FITTED'}`;

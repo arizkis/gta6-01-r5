@@ -1,6 +1,6 @@
 // Street patrols, witnessed heat, sight-based searching, arrest and air support.
 import * as THREE from '../vendor/three.min.js';
-import { box, label } from './city.js';
+import { box, label, material } from './city.js';
 import { createVehicle, MODELS, syncVehicleBlocker } from './vehicles.js';
 import { STREETS, PLACES } from './config.js';
 import { distance, streetRoute } from './navigation.js';
@@ -11,8 +11,10 @@ export function createPolice(game) {
   Object.assign(w, { heat: 0, los: 'LOST', witness: 0, arrest: 0 });
   let cooldown = 0, decay = 0, serial = 0, bustedTime = 0, lastKnown = { x: 0, z: 0 };
   const helicopter = new THREE.Group();
-  box(helicopter, 0, 0, 0, 13, 10, 24, '#eff0d7');
-  box(helicopter, 0, 0, 10, 11, 7, 3, '#2e6673');
+  const fuselage = new THREE.Mesh(new THREE.SphereGeometry(1, 8, 6), material('#eff0d7'));
+  fuselage.scale.set(8, 6, 15); helicopter.add(fuselage);
+  const cockpit = new THREE.Mesh(new THREE.SphereGeometry(1, 8, 6), material('#2e6673'));
+  cockpit.scale.set(6.7, 4.7, 8); cockpit.position.set(0, 0.8, 8); helicopter.add(cockpit);
   box(helicopter, 0, 0, -20, 3, 3, 24, '#388d91');
   box(helicopter, 0, 5, -30, 3, 12, 8, '#388d91');
   const rotor = new THREE.Group();
@@ -156,14 +158,14 @@ export function createPolice(game) {
       if (u.stagedTactic) u.tactic = u.stagedTactic;
       const gap = distance(target, u.position), desiredHeading = Math.atan2(target.x - u.position.x, target.z - u.position.z);
       const turn = Math.atan2(Math.sin(desiredHeading - u.heading), Math.cos(desiredHeading - u.heading));
-      u.heading += THREE.MathUtils.clamp(turn, -dt * 2.4, dt * 2.4);
+      if (!game.staged) u.heading += THREE.MathUtils.clamp(turn, -dt * 2.4, dt * 2.4);
       const desiredSpeed = !w.level ? 0 : u.slowed ? 8 : Math.min(car ? 145 : 30, Math.max(0, gap * 1.2 + (car && gap < 65 ? Math.abs(car.speed) * 0.8 : 0)));
       u.speed += (desiredSpeed - u.speed) * Math.min(1, dt * 2.8);
       if (!game.staged && city.move(u.position, Math.sin(u.heading) * u.speed * dt, Math.cos(u.heading) * u.speed * dt, 9, u)) {
         u.speed *= 0.6;
         city.move(u.position, Math.cos(u.heading) * dt * 20, -Math.sin(u.heading) * dt * 20, 8, u);
       }
-      if (u.tactic === 'ROADBLOCK' && gap < 24) { u.speed = 0; u.heading = u.blockHeading ?? h + Math.PI / 2; }
+      if (!game.staged && u.tactic === 'ROADBLOCK' && gap < 24) { u.speed = 0; u.heading = u.blockHeading ?? h + Math.PI / 2; }
       if (!game.staged) u.mesh.rotation.y = u.heading;
       syncVehicleBlocker(u);
       u.flash.forEach((light, k) => { light.visible = Math.floor(state.elapsed * 8 + k) % 2 === 0; });
@@ -176,7 +178,8 @@ export function createPolice(game) {
     }
     helicopter.visible = beam.visible = spot.visible = ring.visible = w.level >= 4;
     if (helicopter.visible) {
-      helicopter.position.set(p.x + 48, (game.staged ? 70 : 120) + Math.sin(state.elapsed) * 3, p.z + 50);
+      const air = game.stagedAir ?? { x: 48, z: 50, height: 120 };
+      helicopter.position.set(p.x + air.x, air.height + Math.sin(state.elapsed) * 3, p.z + air.z);
       helicopter.rotation.y = h; rotor.rotation.y += dt * 25;
       const ground = new THREE.Vector3(p.x, 1.9, p.z), top = helicopter.position;
       const vector = new THREE.Vector3().subVectors(top, ground);
@@ -185,7 +188,7 @@ export function createPolice(game) {
       spot.position.copy(ground); ring.position.copy(ground); ring.position.y += 0.05;
       if (!city.isShaded(p.x, p.z) && clearRay(top, p)) visual = true;
     }
-    if (game.staged) visual = true;
+    if (game.staged && w.level > 0) visual = true;
     if (w.level > 0) {
       if (visual) { w.heat = Math.min(100, w.heat + dt * 14); lastKnown = { x: p.x, z: p.z }; decay = 0; }
       else {

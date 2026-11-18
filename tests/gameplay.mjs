@@ -18,6 +18,7 @@ const elements = new Map(), saves = new Map();
 function element() {
   return { hidden: true, style: {}, dataset: {}, children: [], className: '', textContent: '',
     append(...nodes) { this.children.push(...nodes); }, replaceChildren() { this.children = []; }, addEventListener() {},
+    getBoundingClientRect() { return { left: 0, top: 0, right: 1280, bottom: 960, width: 1280, height: 960 }; },
     getContext() { return new Proxy({}, { get: (_, key) => key === 'measureText' ? () => ({ width: 20 }) : () => {} }); },
   };
 }
@@ -28,7 +29,10 @@ const crowd = createPedestrians(scene, city, 17), player = createPlayer(scene, c
 const director = createMissionDirector(element());
 const state = { screen: 'play', elapsed: 0, player, mission: director.state, wanted: { level: 0 }, cooler: { active: false }, navigation: {}, dialogue: {} };
 const game = { scene, city, crowd, player, state, vehicles: [...parked.vehicles], freezerVan: parked.freezerVan, missionDirector: director, keys: new Set(),
-  hud: { notify: text => notifications.push(text) }, dialogue: { say: (c, lines) => { state.dialogue = { speaker: c.name, lines }; } },
+  hud: { notify: text => notifications.push(text) }, dialogue: {
+    say(c, lines) { state.dialogue = { speaker: c.name, lines: [...lines], line: lines[0], active: true }; },
+    advance() { state.dialogue.lines.shift(); state.dialogue.line = state.dialogue.lines[0]; },
+  },
   showScreen(name) { state.screen = name; }, chase: { reset() {} }, impact() {},
 };
 game.vehicles.forEach(v => { v.start = { position: v.position.clone(), heading: v.heading }; });
@@ -120,13 +124,34 @@ vehicle.upgrades = {}; driveVehicle(vehicle, 0.1, new Set(['KeyW']), city); cons
 vehicle.speed = 0; vehicle.upgrades.armour = true; driveVehicle(vehicle, 0.1, new Set(['KeyW']), city);
 assert.ok(vehicle.speed < normalAcceleration);
 globalThis.window = {};
+globalThis.innerWidth = 1280; globalThis.innerHeight = 960;
 game.camera = new THREE.PerspectiveCamera(58, 1280 / 720, 0.5, 6500);
 game.traffic = { cars: game.vehicles.slice(2, 4) }; game.hud.update = () => {};
 for (const [shot, light] of [['cover', 'golden'], ['market', 'midday'], ['garage', 'golden'], ['causeway', 'dusk']]) {
   game.shot = shot; player.vehicle = null; player.mesh.visible = true;
-  assert.ok(stageShot(game)); assert.equal(city.timeOfDay, light); assert.equal(window.__shotReady, false);
+  const staging = stageShot(game);
+  assert.ok(staging); assert.equal(city.timeOfDay, light); assert.equal(window.__shotReady, false);
   if (shot === 'cover') { assert.equal(player.carrying, true); assert.ok(game.cargo.prop.visible); assert.equal(state.wanted.level, 4); }
   if (shot === 'garage') assert.equal(game.services.active.id, 'garage');
   if (shot === 'causeway') { assert.equal(state.wanted.level, 5); assert.equal(game.police.units.length, 4); assert.ok(player.vehicle.speed > 80); }
+  if (shot === 'market') {
+    assert.equal(state.dialogue.line, 'Keep the crates level, Juno. Bruised peaches start arguments.');
+    assert.ok(state.navigation.target.equals(crowd.contacts[1].position));
+  }
+  const poses = game.police.units.map(u => [u.position.clone(), u.heading]);
+  let ticks = 0;
+  for (let frame = 0; frame < 16; frame++) {
+    for (let batch = 0; batch < 6 && staging.advance(); batch++) {
+      ticks++; state.elapsed += 1 / 60;
+      game.police.update(1 / 60); game.cargo.update(1 / 60); game.effects.update(1 / 60);
+    }
+    staging.afterRender();
+  }
+  assert.equal(ticks, 90); assert.equal(staging.advance(), false);
+  assert.equal(window.__shotFrame, 90); assert.equal(window.__shotReady, true);
+  game.police.units.forEach((u, i) => {
+    assert.ok(u.position.equals(poses[i][0])); assert.equal(u.heading, poses[i][1]);
+    assert.equal(u.mesh.rotation.y, u.heading, 'map cones and photographed patrols must face the same way');
+  });
 }
-console.log('PASS: six job state paths, scaled pay, carrying, sight decay, upgrades, strip hit, repair, shops, saves, water refill, panic, arrest, weight and four scene initializers. Browser rendering remains a separate check.');
+console.log('PASS: six job state paths, scaled pay, carrying, sight decay, upgrades, strip hit, repair, shops, saves, water refill, panic, arrest, weight, job dialogue and four staging drivers that settle after exactly 90 ticks. Browser rendering remains a separate check.');
